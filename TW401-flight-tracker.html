@@ -6,11 +6,11 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="TW401 Tracker">
+  <meta name="apple-mobile-web-app-title" content="TRINITY TW401">
   <meta name="theme-color" content="#07111f">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:; font-src 'none'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
   <link rel="icon" href="data:,">
-  <title>TW401 · 오프라인 비행 트래커</title>
+  <title>TRINITY AIRWAYS TW401 · 오프라인 비행 트래커</title>
   <style>
     :root {
       color-scheme: dark;
@@ -85,31 +85,23 @@
       margin: 0 2px 14px;
     }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-width: 0;
-    }
+    .brand { display: flex; align-items: center; min-width: 0; }
 
-    .brand-mark {
+    .trinity-lockup {
       display: grid;
       place-items: center;
-      width: 32px;
-      height: 32px;
+      width: 150px;
+      height: 38px;
+      padding: 4px 8px;
       flex: 0 0 auto;
-      border-radius: 10px;
-      color: white;
-      font-size: 12px;
-      font-weight: 900;
-      letter-spacing: -.8px;
-      background: linear-gradient(145deg, #ff5668, #bf2038);
-      box-shadow: 0 8px 24px rgba(239,69,90,.27), inset 0 1px 0 rgba(255,255,255,.28);
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.7);
+      border-radius: 11px;
+      background: #f5f2eb;
+      box-shadow: 0 8px 24px rgba(0,0,0,.22), inset 0 1px 0 white;
     }
 
-    .brand-copy { min-width: 0; }
-    .brand-name { font-size: 13px; font-weight: 760; letter-spacing: .01em; }
-    .brand-sub { margin-top: 1px; color: var(--muted); font-size: 10px; letter-spacing: .12em; }
+    .trinity-logo { display: block; width: 100%; height: auto; }
 
     .offline-pill {
       display: inline-flex;
@@ -368,19 +360,22 @@
     #planeGroup { transform-box: fill-box; transform-origin: center; }
 
     .map-readout {
-      display: flex;
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
       align-items: center;
-      justify-content: space-between;
       gap: 12px;
-      min-height: 45px;
-      padding: 0 15px;
+      min-height: 60px;
+      padding: 8px 15px;
       border-top: 1px solid var(--line);
       color: var(--muted);
       background: rgba(5,15,25,.54);
       font-size: 9px;
     }
 
-    .map-readout strong { display: block; margin-top: 2px; color: #d7e9f3; font-size: 11px; font-weight: 670; font-variant-numeric: tabular-nums; }
+    .map-readout strong { display: block; margin-top: 3px; color: #d7e9f3; font-size: 10px; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .map-readout .location-name { color: var(--cyan-soft); font-size: 13px; }
+    .map-readout small { display: block; margin-top: 3px; color: var(--subtle); font-size: 8px; font-weight: 600; }
+    .map-readout small b { color: #a9c0cf; font-weight: 720; font-variant-numeric: tabular-nums; }
     .map-readout > div:last-child { text-align: right; }
 
     .instrument-grid {
@@ -685,11 +680,28 @@
 <body>
   <main class="app is-live" id="app">
     <header class="masthead">
-      <div class="brand" aria-label="티웨이항공 오프라인 여정">
-        <div class="brand-mark" aria-hidden="true">t'</div>
-        <div class="brand-copy">
-          <div class="brand-name">나의 파리 비행</div>
-          <div class="brand-sub">TW401 · SMART</div>
+      <div class="brand" aria-label="트리니티항공">
+        <div class="trinity-lockup">
+          <svg class="trinity-logo" viewBox="0 0 156 38" role="img" aria-label="TRINITY AIRWAYS 로고">
+            <g clip-path="url(#trinityClip)">
+              <path d="M15.0547 33.1659L28.6547 9.60449L22.0637 10.3684C19.2973 10.6884 17.1244 12.8922 16.8405 15.6639L15.0547 33.1659Z" fill="url(#trinityGold)"/>
+              <path d="M13.5961 33.1659L-0.00390625 9.60449L6.58708 10.3684C9.35354 10.6884 11.5265 12.8922 11.8103 15.6639L13.5961 33.1659Z" fill="url(#trinityRose)"/>
+              <path d="M16.0153 9.25257L26.7508 4.31836H1.9043L12.6347 9.25257C13.7082 9.74805 14.9418 9.74805 16.0101 9.25257H16.0153Z" fill="url(#trinitySilver)"/>
+              <path d="M80.9484 27.1414H77.1445V8.50391H80.9484V27.1465V27.1414Z" fill="#686058"/>
+              <path d="M115.53 27.1413H111.727V8.5038H115.53V27.1464V27.1413Z" fill="#686058"/>
+              <path d="M103.473 27.1425L90.3268 14.1308H90.27C90.2958 15.2199 90.301 16.2212 90.3268 17.1399C90.3371 17.527 90.399 27.0496 90.399 27.0496H88.1797V8.37598H89.8365L103.018 21.3463H103.039C103.013 20.3451 102.993 19.4057 102.977 18.5386C102.977 18.1618 102.941 8.49985 102.941 8.49985H105.16V27.1425H103.467H103.473Z" fill="#686058"/>
+              <path d="M125.533 27.1414V10.4858L119.68 10.3981V8.50391H135.189V10.3413L129.336 10.4858V27.1414H125.533Z" fill="#686058"/>
+              <path d="M42.392 27.1414V10.4858L36.5391 10.3981V8.50391H52.0488V10.3413L46.1959 10.4858V27.1414H42.392Z" fill="#686058"/>
+              <path d="M154.131 8.5038H151.53L146.977 15.9103L142.213 8.5038H137.48L143.87 18.1709V27.1413H147.731V18.0212L148.133 17.4948L154.131 8.5038Z" fill="#686058"/>
+              <path d="M63.1563 19.6777C63.6879 20.6945 67.4196 26.7074 67.6983 27.0893C67.7086 27.1048 67.7241 27.1255 67.7344 27.141H72.2506C72.1938 27.1048 72.137 27.0687 72.0854 27.0274C71.7705 26.7952 71.4918 26.5216 71.2389 26.2429C70.4493 25.3655 66.8467 20.1216 66.4596 19.3629C67.3009 19.1409 67.7499 18.7642 68.457 18.1138C69.0763 17.5512 69.5305 16.8906 69.8196 16.1319C70.1086 15.3732 70.2583 14.6764 70.2583 13.8145C70.2583 12.999 70.1241 12.2661 69.8557 11.6003C69.5873 10.9396 69.1744 10.2686 68.617 9.81445C68.0596 9.36025 67.3576 9.00928 66.5163 8.75638C65.675 8.50864 64.6789 8.38477 63.5383 8.38477C63.2699 8.38477 62.2583 8.38477 61.9795 8.38993H57.0195V27.1358H60.8234V19.6829C61.546 19.6829 62.5783 19.6829 63.1512 19.6725L63.1563 19.6777ZM64.8544 10.7177C65.6699 11.079 66.3202 11.7706 66.6815 12.5809C67.5434 14.5319 66.7434 16.7874 64.6996 17.5306C64.1834 17.7164 63.6312 17.7938 63.0841 17.7938C62.3408 17.7938 61.3912 17.7835 60.8286 17.7732V10.377C62.186 10.4286 63.6157 10.1706 64.8596 10.7177H64.8544Z" fill="#686058"/>
+            </g>
+            <defs>
+              <linearGradient id="trinityGold" x1="1.80561" y1="36.5568" x2="21.8263" y2="17.94" gradientUnits="userSpaceOnUse"><stop offset=".01" stop-color="#F2E9D2"/><stop offset=".5" stop-color="#E7D5A9"/><stop offset=".99" stop-color="#C1B494"/></linearGradient>
+              <linearGradient id="trinityRose" x1="16.2129" y1="35.2252" x2="8.77548" y2="18.6626" gradientUnits="userSpaceOnUse"><stop stop-color="#E2C7B5"/><stop offset=".52" stop-color="#D7A79B"/><stop offset="1" stop-color="#C69186"/></linearGradient>
+              <linearGradient id="trinitySilver" x1="8.21658" y1="-8.60039" x2="17.7908" y2="11.6371" gradientUnits="userSpaceOnUse"><stop stop-color="#C6C8C8"/><stop offset=".34" stop-color="#CFD0D0"/><stop offset=".89" stop-color="#E8E7E7"/><stop offset="1" stop-color="#EFEDED"/></linearGradient>
+              <clipPath id="trinityClip"><rect width="156" height="38" fill="white"/></clipPath>
+            </defs>
+          </svg>
         </div>
       </div>
       <div class="offline-pill">완전 오프라인</div>
@@ -776,8 +788,8 @@
         </g>
       </svg>
       <div class="map-readout">
-        <div>현재 추정 좌표<strong id="coordinateReadout">37.4602° N · 126.4407° E</strong></div>
-        <div>기수 방향<strong id="headingReadout">—</strong></div>
+        <div>현재 추정 지역<strong class="location-name" id="locationReadout">대한민국 · 인천</strong><small id="locationDetail">가까운 주요 도시 기준</small></div>
+        <div>현재 추정 좌표<strong id="coordinateReadout">37.4602° N · 126.4407° E</strong><small>기수 방향 · <b id="headingReadout">—</b></small></div>
       </div>
     </section>
 
@@ -851,7 +863,7 @@
 
     <aside class="notice" aria-label="중요 안내">
       <div class="notice-icon" aria-hidden="true">i</div>
-      <div><strong>예정 시각 기반 추정이며 실제 지연·우회·실시간 위치를 반영하지 않음.</strong><br>GPS나 항공기 데이터가 아닌 일정 계산입니다. 정확한 표시를 위해 <strong>기기 시간이 정확해야 함</strong>.</div>
+      <div><strong>예정 시각 기반 추정이며 실제 지연·우회·실시간 위치를 반영하지 않음.</strong><br>국가·도시는 항로에서 가장 가까운 주요 도시 기준입니다. 정확한 표시를 위해 <strong>기기 시간이 정확해야 함</strong>.</div>
     </aside>
 
     <footer class="self-test">
@@ -870,6 +882,36 @@
       const ICN = Object.freeze({ lat: 37.4602, lon: 126.4407 });
       const CDG = Object.freeze({ lat: 49.0097, lon: 2.5479 });
       const MAP = Object.freeze({ width: 1000, height: 500, scale: 178 });
+      const ROUTE_CITIES = Object.freeze([
+        { country: '대한민국', city: '인천', lat: 37.4602, lon: 126.4407 },
+        { country: '북한', city: '개성', lat: 37.971, lon: 126.554 },
+        { country: '북한', city: '평양', lat: 39.039, lon: 125.763 },
+        { country: '중국', city: '단둥', lat: 40.124, lon: 124.394 },
+        { country: '중국', city: '퉁랴오', lat: 43.617, lon: 122.267 },
+        { country: '몽골', city: '초이발산', lat: 48.078, lon: 114.535 },
+        { country: '러시아', city: '치타', lat: 52.034, lon: 113.499 },
+        { country: '러시아', city: '울란우데', lat: 51.833, lon: 107.584 },
+        { country: '러시아', city: '브라츠크', lat: 56.151, lon: 101.634 },
+        { country: '러시아', city: '보고차니', lat: 58.381, lon: 97.453 },
+        { country: '러시아', city: '예니세이스크', lat: 58.449, lon: 92.176 },
+        { country: '러시아', city: '니즈네바르톱스크', lat: 60.939, lon: 76.569 },
+        { country: '러시아', city: '노야브리스크', lat: 63.201, lon: 75.451 },
+        { country: '러시아', city: '냐간', lat: 62.140, lon: 65.394 },
+        { country: '러시아', city: '우흐타', lat: 63.567, lon: 53.683 },
+        { country: '러시아', city: '코틀라스', lat: 61.252, lon: 46.649 },
+        { country: '러시아', city: '플레세츠크', lat: 62.708, lon: 40.292 },
+        { country: '러시아', city: '소르타발라', lat: 61.704, lon: 30.691 },
+        { country: '핀란드', city: '헬싱키', lat: 60.170, lon: 24.938 },
+        { country: '에스토니아', city: '합살루', lat: 58.944, lon: 23.541 },
+        { country: '스웨덴', city: '비스뷔', lat: 57.635, lon: 18.294 },
+        { country: '덴마크', city: '뉘쾨빙팔스테르', lat: 54.769, lon: 11.875 },
+        { country: '독일', city: '뤼베크', lat: 53.867, lon: 10.687 },
+        { country: '독일', city: '뮌스터', lat: 51.961, lon: 7.626 },
+        { country: '독일', city: '뒤셀도르프', lat: 51.228, lon: 6.773 },
+        { country: '벨기에', city: '리에주', lat: 50.633, lon: 5.567 },
+        { country: '프랑스', city: '랭스', lat: 49.258, lon: 4.031 },
+        { country: '프랑스', city: '파리', lat: 49.0097, lon: 2.5479 }
+      ]);
       const RAD = Math.PI / 180;
       const DEG = 180 / Math.PI;
 
@@ -895,6 +937,22 @@
           lat: Math.atan2(v[2], Math.hypot(v[0], v[1])) * DEG,
           lon: Math.atan2(v[1], v[0]) * DEG
         };
+      }
+
+      function distanceKm(a, b) {
+        const phi1 = a.lat * RAD;
+        const phi2 = b.lat * RAD;
+        const deltaPhi = (b.lat - a.lat) * RAD;
+        const deltaLambda = (b.lon - a.lon) * RAD;
+        const haversine = Math.sin(deltaPhi / 2) ** 2 + Math.cos(phi1) * Math.cos(phi2) * Math.sin(deltaLambda / 2) ** 2;
+        return 6371.0088 * 2 * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
+      }
+
+      function nearestRouteCity(point) {
+        return ROUTE_CITIES.reduce((nearest, candidate) => {
+          const distance = distanceKm(point, candidate);
+          return !nearest || distance < nearest.distance ? { ...candidate, distance } : nearest;
+        }, null);
       }
 
       // Equal Earth projection keeps continental proportions readable on a phone.
@@ -1084,6 +1142,7 @@
       function render(timeMs = effectiveTime()) {
         const progress = progressAt(timeMs);
         const point = slerp(ICN, CDG, progress);
+        const location = nearestRouteCity(point);
         const projected = project(point);
         const heading = headingAt(progress);
         const elapsed = clamp(timeMs - DEPARTURE_MS, 0, DURATION_MS);
@@ -1097,6 +1156,11 @@
         $('progressOrb').setAttribute('aria-valuenow', (progress * 100).toFixed(1));
         $('elapsedValue').textContent = formatDuration(elapsed);
         $('remainingValue').textContent = formatDuration(remaining);
+        const proximity = location.distance < 15 ? '' : ' 인근';
+        $('locationReadout').textContent = `${location.country} · ${location.city}${proximity}`;
+        $('locationDetail').textContent = location.distance < 15
+          ? '가까운 주요 도시 상공 추정'
+          : `가까운 주요 도시까지 약 ${Math.round(location.distance)} km`;
         $('coordinateReadout').textContent = `${formatCoordinate(point.lat, 'N', 'S')} · ${formatCoordinate(point.lon, 'E', 'W')}`;
         $('headingReadout').textContent = `${Math.round((heading + 360) % 360).toString().padStart(3, '0')}° MAP`;
         $('planeGroup').setAttribute('transform', `translate(${projected.x.toFixed(2)} ${projected.y.toFixed(2)}) rotate(${heading.toFixed(2)})`);
@@ -1172,6 +1236,9 @@
         const midpoint = slerp(ICN, CDG, .5);
         const start = slerp(ICN, CDG, 0);
         const end = slerp(ICN, CDG, 1);
+        const startLocation = nearestRouteCity(start);
+        const midLocation = nearestRouteCity(midpoint);
+        const endLocation = nearestRouteCity(end);
 
         test('UTC departure boundary', DEPARTURE_MS === 1790989800000);
         test('UTC arrival boundary', ARRIVAL_MS === 1791043800000);
@@ -1186,6 +1253,9 @@
         test('start coordinate', near(start.lat, 37.4602) && near(start.lon, 126.4407));
         test('mid coordinate', near(midpoint.lat, 63.0647049) && near(midpoint.lon, 74.6108500));
         test('end coordinate', near(end.lat, 49.0097) && near(end.lon, 2.5479));
+        test('start location', startLocation.country === '대한민국' && startLocation.city === '인천');
+        test('mid location', midLocation.country === '러시아' && midLocation.city === '노야브리스크');
+        test('end location', endLocation.country === '프랑스' && endLocation.city === '파리');
         test('date-line split', splitAntimeridian([{ lat: 10, lon: 170 }, { lat: 12, lon: -170 }]).length === 2);
         test('Seoul schedule', zonedParts(DEPARTURE_MS, 'Asia/Seoul').time === '10:10:00');
         test('Paris schedule', zonedParts(ARRIVAL_MS, 'Europe/Paris').time === '18:10:00');
@@ -1222,7 +1292,7 @@
 
         window.__flightTracker = Object.freeze({
           constants: Object.freeze({ DEPARTURE_MS, ARRIVAL_MS, DURATION_MS, ICN, CDG }),
-          slerp, project, splitAntimeridian, progressAt, render,
+          slerp, project, splitAntimeridian, progressAt, nearestRouteCity, render,
           usePreset,
           getState: () => ({ mode, timeMs: effectiveTime(), progress: progressAt(effectiveTime()) })
         });
