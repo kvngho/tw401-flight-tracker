@@ -589,6 +589,81 @@
       .world-map { min-height: 226px; }
     }
 
+    /* iPhone landscape: use the wide canvas as an actual flight deck. */
+    @media (orientation: landscape) and (min-width: 620px) {
+      .app {
+        width: 100%;
+        max-width: 1200px;
+        padding: max(10px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+        display: grid;
+        grid-template-columns: minmax(260px, .82fr) minmax(330px, 1.18fr);
+        grid-template-areas:
+          "masthead masthead"
+          "hero route-label"
+          "hero map"
+          "instrument-label instrument-label"
+          "instruments instruments"
+          "clock-label simulator-label"
+          "clock simulator"
+          "notice notice"
+          "footer footer";
+        column-gap: 12px;
+        row-gap: 0;
+      }
+
+      .masthead {
+        grid-area: masthead;
+        min-height: 38px;
+        margin-bottom: 8px;
+      }
+
+      .hero {
+        grid-area: hero;
+        align-self: stretch;
+        padding: 15px 16px 14px;
+      }
+
+      .flight-number { font-size: 31px; }
+      .flight-meta { margin-top: 6px; }
+      .route-summary { margin-top: 15px; }
+      .airport-code { font-size: 23px; }
+      .airport-time { margin-top: 5px; font-size: 12px; }
+      .route-arrow { width: clamp(38px, 7vw, 68px); }
+      .progress-row {
+        grid-template-columns: 72px minmax(0, 1fr);
+        gap: 13px;
+        margin-top: 14px;
+        padding-top: 12px;
+      }
+      .progress-orb { width: 72px; height: 72px; }
+      .progress-value { font-size: 16px; }
+      .phase-title { margin-top: 3px; font-size: 17px; }
+      .phase-detail { margin-top: 4px; font-size: 10px; }
+
+      .route-label { grid-area: route-label; align-self: end; }
+      .map-panel { grid-area: map; align-self: stretch; }
+      .world-map { min-height: 0; }
+      .instrument-label-row { grid-area: instrument-label; }
+      .instrument-grid {
+        grid-area: instruments;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+      .instrument { min-height: 76px; padding: 11px 13px; }
+      .instrument-value { margin-top: 6px; }
+      .instrument-sub { margin-top: 3px; }
+      .clock-label-row { grid-area: clock-label; }
+      .clock-panel { grid-area: clock; align-self: start; }
+      .simulator-label-row { grid-area: simulator-label; }
+      details.simulator { grid-area: simulator; align-self: start; }
+      .notice { grid-area: notice; }
+      .self-test { grid-area: footer; }
+
+      .section-label { margin-top: 14px; }
+      .route-label { margin-top: 0; }
+      .clock-row { min-height: 76px; }
+      .clock-time { font-size: 20px; }
+    }
+
     @media (prefers-reduced-motion: no-preference) {
       .status-chip[data-phase="inflight"] .status-dot,
       .is-live .map-live::before { animation: pulse 2s ease-in-out infinite; }
@@ -658,7 +733,7 @@
       </div>
     </section>
 
-    <div class="section-label"><span>GREAT-CIRCLE ROUTE</span><span>구면 최단 항로 추정</span></div>
+    <div class="section-label route-label"><span>GREAT-CIRCLE ROUTE</span><span>구면 최단 항로 추정</span></div>
 
     <section class="panel map-panel" aria-labelledby="mapTitle">
       <div class="map-head">
@@ -668,9 +743,9 @@
         </div>
         <div class="map-live" id="mapMode">DEVICE TIME</div>
       </div>
-      <svg class="world-map" id="worldMap" viewBox="0 0 1000 500" role="img" aria-labelledby="svgTitle svgDesc">
+      <svg class="world-map" id="worldMap" viewBox="430 -5 450 220" role="img" aria-labelledby="svgTitle svgDesc">
         <title id="svgTitle">인천에서 파리까지의 대권항로 지도</title>
-        <desc id="svgDesc">예정 시각에 따라 항로 위 항공기 위치가 움직이는 오프라인 세계 지도입니다.</desc>
+        <desc id="svgDesc">예정 시각에 따라 인천과 파리 사이 항로 위 항공기 위치가 움직이는 오프라인 지도입니다.</desc>
         <defs>
           <linearGradient id="routeGradient" x1="1" y1="0" x2="0" y2="0">
             <stop offset="0" stop-color="#55d6ef"/>
@@ -687,7 +762,7 @@
             <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
         </defs>
-        <rect class="ocean-frame" x="9" y="9" width="982" height="482" rx="20"/>
+        <rect class="ocean-frame" x="438" y="3" width="434" height="204" rx="18"/>
         <g id="graticuleLayer" aria-hidden="true"></g>
         <g id="landLayer" aria-hidden="true"></g>
         <g aria-hidden="true">
@@ -706,7 +781,7 @@
       </div>
     </section>
 
-    <div class="section-label"><span>FLIGHT INSTRUMENTS</span><span>예정 시각 기준</span></div>
+    <div class="section-label instrument-label-row"><span>FLIGHT INSTRUMENTS</span><span>예정 시각 기준</span></div>
 
     <section class="instrument-grid" aria-label="비행 시간 계기">
       <div class="instrument">
@@ -731,7 +806,7 @@
       </div>
     </section>
 
-    <div class="section-label"><span>LOCAL TIME</span><span id="timeSourceLabel">기기 시각 기준</span></div>
+    <div class="section-label clock-label-row"><span>LOCAL TIME</span><span id="timeSourceLabel">기기 시각 기준</span></div>
 
     <section class="panel clock-panel" aria-label="인천과 파리의 현지 시각">
       <div class="clock-row">
@@ -749,7 +824,7 @@
       </div>
     </section>
 
-    <div class="section-label"><span>TIME SIMULATOR</span><span>검증 · 데모</span></div>
+    <div class="section-label simulator-label-row"><span>TIME SIMULATOR</span><span>검증 · 데모</span></div>
 
     <details class="simulator" id="simulator">
       <summary>
