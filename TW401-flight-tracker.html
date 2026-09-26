@@ -1,0 +1,1161 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="TW401 Tracker">
+  <meta name="theme-color" content="#07111f">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:; font-src 'none'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <link rel="icon" href="data:,">
+  <title>TW401 · 오프라인 비행 트래커</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f7fbff;
+      --muted: #8da2b8;
+      --subtle: #748ba1;
+      --panel: rgba(13, 29, 47, .84);
+      --panel-solid: #0d1d2f;
+      --line: rgba(170, 207, 231, .14);
+      --cyan: #56d6ef;
+      --cyan-soft: #9ceeff;
+      --red: #ef455a;
+      --gold: #ffc56e;
+      --green: #5ae0b4;
+      --radius: 22px;
+      --shadow: 0 18px 55px rgba(0, 0, 0, .33);
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      min-width: 320px;
+      background: #050d17;
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100svh;
+      overflow-x: hidden;
+      color: var(--ink);
+      background:
+        radial-gradient(120% 55% at 88% -4%, rgba(33, 111, 145, .27), transparent 57%),
+        radial-gradient(80% 35% at 3% 19%, rgba(239, 69, 90, .10), transparent 64%),
+        linear-gradient(180deg, #07111f 0%, #06101c 55%, #050c15 100%);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .32;
+      background-image: linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px);
+      background-size: 100% 6px;
+      mask-image: linear-gradient(to bottom, #000, transparent 75%);
+    }
+
+    button, input { font: inherit; }
+
+    button {
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    .app {
+      position: relative;
+      width: min(100%, 470px);
+      min-height: 100svh;
+      margin: 0 auto;
+      padding: max(18px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(28px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+    }
+
+    .masthead {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 44px;
+      margin: 0 2px 14px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      flex: 0 0 auto;
+      border-radius: 10px;
+      color: white;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: -.8px;
+      background: linear-gradient(145deg, #ff5668, #bf2038);
+      box-shadow: 0 8px 24px rgba(239,69,90,.27), inset 0 1px 0 rgba(255,255,255,.28);
+    }
+
+    .brand-copy { min-width: 0; }
+    .brand-name { font-size: 13px; font-weight: 760; letter-spacing: .01em; }
+    .brand-sub { margin-top: 1px; color: var(--muted); font-size: 10px; letter-spacing: .12em; }
+
+    .offline-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 28px;
+      padding: 0 10px;
+      border: 1px solid rgba(90,224,180,.25);
+      border-radius: 999px;
+      color: #a7efd7;
+      background: rgba(31,123,99,.11);
+      font-size: 9px;
+      font-weight: 780;
+      letter-spacing: .1em;
+      white-space: nowrap;
+    }
+
+    .offline-pill::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 10px rgba(90,224,180,.72);
+    }
+
+    .panel {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(145deg, rgba(16,35,56,.93), rgba(8,22,37,.89));
+      box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,.025);
+    }
+
+    .hero {
+      padding: 20px 18px 18px;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      top: -112px;
+      right: -65px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(86,214,239,.18), transparent 67%);
+      pointer-events: none;
+    }
+
+    .eyebrow-row {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .flight-number {
+      margin: 0;
+      font-size: clamp(30px, 9vw, 38px);
+      line-height: 1;
+      font-weight: 820;
+      letter-spacing: -.055em;
+    }
+
+    .flight-meta {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .035em;
+    }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 30px;
+      padding: 0 11px;
+      border: 1px solid rgba(255,197,110,.23);
+      border-radius: 999px;
+      color: var(--gold);
+      background: rgba(255,197,110,.08);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      white-space: nowrap;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 10px currentColor;
+    }
+
+    .status-chip[data-phase="inflight"] {
+      color: var(--cyan-soft);
+      border-color: rgba(86,214,239,.25);
+      background: rgba(86,214,239,.08);
+    }
+
+    .status-chip[data-phase="arrived"] {
+      color: var(--green);
+      border-color: rgba(90,224,180,.24);
+      background: rgba(90,224,180,.08);
+    }
+
+    .route-summary {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      align-items: center;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .airport:last-child { text-align: right; }
+    .airport-code { font-size: 27px; font-weight: 790; letter-spacing: -.04em; }
+    .airport-city { margin-top: 3px; color: var(--muted); font-size: 10px; }
+    .airport-time { margin-top: 8px; color: var(--ink); font-size: 13px; font-variant-numeric: tabular-nums; }
+
+    .route-arrow {
+      display: flex;
+      align-items: center;
+      width: clamp(50px, 18vw, 78px);
+      color: var(--subtle);
+    }
+
+    .route-arrow::before, .route-arrow::after { content: ""; display: block; }
+    .route-arrow::before { width: 100%; height: 1px; background: linear-gradient(90deg, transparent, currentColor 22%, currentColor); }
+    .route-arrow::after { width: 7px; height: 7px; border-top: 1px solid currentColor; border-right: 1px solid currentColor; transform: rotate(45deg); }
+
+    .progress-row {
+      display: grid;
+      grid-template-columns: 88px minmax(0, 1fr);
+      align-items: center;
+      gap: 18px;
+      margin-top: 22px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+    }
+
+    .progress-orb {
+      --progress-deg: 0deg;
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      background: conic-gradient(var(--cyan) var(--progress-deg), rgba(117,153,181,.13) 0);
+      box-shadow: 0 0 28px rgba(86,214,239,.08);
+    }
+
+    .progress-orb::before {
+      content: "";
+      position: absolute;
+      inset: 6px;
+      border-radius: 50%;
+      background: #0b1b2b;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.035);
+    }
+
+    .progress-value {
+      position: relative;
+      font-size: 19px;
+      font-weight: 820;
+      letter-spacing: -.05em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .progress-value small { color: var(--muted); font-size: 10px; letter-spacing: 0; }
+
+    .phase-kicker { color: var(--cyan-soft); font-size: 10px; font-weight: 800; letter-spacing: .15em; }
+    .phase-title { margin-top: 5px; font-size: 19px; font-weight: 750; letter-spacing: -.025em; }
+    .phase-detail { margin-top: 6px; color: var(--muted); font-size: 11px; line-height: 1.55; font-variant-numeric: tabular-nums; }
+
+    .section-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 22px 3px 10px;
+      color: #b8c9d9;
+      font-size: 10px;
+      font-weight: 790;
+      letter-spacing: .14em;
+    }
+
+    .section-label span:last-child { color: var(--subtle); font-size: 9px; letter-spacing: .08em; }
+
+    .map-panel { padding: 0; }
+
+    .map-head {
+      position: absolute;
+      z-index: 3;
+      inset: 14px 15px auto;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      pointer-events: none;
+    }
+
+    .map-title { font-size: 11px; font-weight: 760; letter-spacing: .04em; }
+    .map-caption { margin-top: 3px; color: var(--muted); font-size: 9px; }
+
+    .map-live {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 24px;
+      padding: 0 8px;
+      border: 1px solid rgba(86,214,239,.17);
+      border-radius: 8px;
+      color: var(--cyan-soft);
+      background: rgba(5,15,25,.5);
+      font-size: 8px;
+      font-weight: 800;
+      letter-spacing: .1em;
+      backdrop-filter: blur(8px);
+    }
+
+    .map-live::before {
+      content: "";
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--cyan);
+    }
+
+    .world-map {
+      display: block;
+      width: 100%;
+      height: auto;
+      min-height: 210px;
+      background:
+        radial-gradient(70% 85% at 64% 45%, rgba(25,74,97,.19), transparent 70%),
+        linear-gradient(180deg, #071522, #07121e);
+    }
+
+    .ocean-frame { fill: transparent; stroke: rgba(151,195,220,.08); stroke-width: 1.5; }
+    .graticule { fill: none; stroke: rgba(137,178,203,.085); stroke-width: 1; vector-effect: non-scaling-stroke; }
+    .land { fill: #142e43; stroke: rgba(111,170,196,.18); stroke-width: 1.4; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+    .route-base { fill: none; stroke: rgba(151,207,229,.3); stroke-width: 2.4; stroke-dasharray: 5 7; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+    .route-flown { fill: none; stroke: url(#routeGradient); stroke-width: 4; stroke-linecap: round; filter: url(#routeGlow); vector-effect: non-scaling-stroke; }
+    .city-ring { fill: #071522; stroke: rgba(202,237,249,.75); stroke-width: 2; vector-effect: non-scaling-stroke; }
+    .city-core { fill: white; }
+    .map-label { fill: #b8d1df; font-size: 19px; font-weight: 800; letter-spacing: .05em; paint-order: stroke; stroke: #071522; stroke-width: 7px; stroke-linejoin: round; }
+    .map-label.sub { fill: #718ca1; font-size: 13px; font-weight: 600; }
+    .plane-halo { fill: rgba(86,214,239,.16); stroke: rgba(86,214,239,.35); stroke-width: 1; }
+    .plane-mark { fill: #f6fcff; filter: url(#planeGlow); }
+
+    #planeGroup { transform-box: fill-box; transform-origin: center; }
+
+    .map-readout {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 45px;
+      padding: 0 15px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      background: rgba(5,15,25,.54);
+      font-size: 9px;
+    }
+
+    .map-readout strong { display: block; margin-top: 2px; color: #d7e9f3; font-size: 11px; font-weight: 670; font-variant-numeric: tabular-nums; }
+    .map-readout > div:last-child { text-align: right; }
+
+    .instrument-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+    }
+
+    .instrument {
+      min-width: 0;
+      min-height: 86px;
+      padding: 13px 14px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(11,27,44,.74);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.018);
+    }
+
+    .instrument-label { color: var(--muted); font-size: 9px; font-weight: 750; letter-spacing: .1em; }
+    .instrument-value { margin-top: 9px; overflow-wrap: anywhere; color: #f4fbff; font-size: 16px; font-weight: 730; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+    .instrument-value.compact { font-size: 14px; }
+    .instrument-sub { margin-top: 5px; color: var(--subtle); font-size: 9px; line-height: 1.35; }
+
+    .clock-panel { padding: 4px 16px; }
+
+    .clock-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 12px;
+      min-height: 80px;
+    }
+
+    .clock:last-child { text-align: right; }
+    .clock-zone { color: var(--muted); font-size: 9px; font-weight: 750; letter-spacing: .1em; }
+    .clock-time { margin-top: 6px; font-size: 22px; font-weight: 770; letter-spacing: -.025em; font-variant-numeric: tabular-nums; }
+    .clock-date { margin-top: 4px; color: var(--subtle); font-size: 9px; }
+
+    .clock-divider { width: 1px; height: 38px; background: var(--line); }
+
+    details.simulator {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(10,25,41,.66);
+    }
+
+    details.simulator > summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 52px;
+      padding: 0 15px;
+      cursor: pointer;
+      list-style: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    details.simulator > summary::-webkit-details-marker { display: none; }
+
+    .summary-title { display: flex; align-items: center; gap: 9px; font-size: 11px; font-weight: 740; }
+    .summary-icon { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 8px; color: var(--cyan-soft); background: rgba(86,214,239,.09); font-size: 14px; }
+    .summary-state { color: var(--muted); font-size: 9px; font-weight: 650; }
+
+    .chevron {
+      width: 8px;
+      height: 8px;
+      margin-left: 8px;
+      border-right: 1.5px solid var(--muted);
+      border-bottom: 1.5px solid var(--muted);
+      transform: rotate(45deg);
+      transition: transform .2s ease;
+    }
+
+    details[open] .chevron { transform: rotate(225deg); }
+
+    .sim-body { padding: 0 14px 15px; border-top: 1px solid var(--line); }
+    .sim-readout { padding: 13px 1px 10px; color: #d6e6ef; font-size: 11px; font-weight: 650; font-variant-numeric: tabular-nums; }
+
+    .preset-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 7px;
+    }
+
+    .preset {
+      min-width: 0;
+      min-height: 44px;
+      padding: 0 6px;
+      border: 1px solid rgba(156,190,211,.14);
+      border-radius: 11px;
+      color: #a9bdcc;
+      background: rgba(255,255,255,.025);
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .preset[aria-pressed="true"] {
+      color: #e8fbff;
+      border-color: rgba(86,214,239,.45);
+      background: rgba(86,214,239,.12);
+      box-shadow: inset 0 0 0 1px rgba(86,214,239,.08);
+    }
+
+    .preset:focus-visible, summary:focus-visible, input:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+
+    .slider-wrap { padding-top: 15px; }
+
+    input[type="range"] {
+      width: 100%;
+      height: 44px;
+      margin: 0;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background: transparent;
+    }
+
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 4px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(86,214,239,.65), rgba(86,214,239,.18));
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      width: 22px;
+      height: 22px;
+      margin-top: -9px;
+      border: 3px solid #0b1b2b;
+      border-radius: 50%;
+      appearance: none;
+      -webkit-appearance: none;
+      background: var(--cyan-soft);
+      box-shadow: 0 0 0 1px rgba(156,238,255,.75), 0 3px 12px rgba(0,0,0,.4);
+    }
+
+    input[type="range"]::-moz-range-track { height: 4px; border: 0; border-radius: 999px; background: rgba(86,214,239,.3); }
+    input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border: 3px solid #0b1b2b; border-radius: 50%; background: var(--cyan-soft); }
+
+    .slider-ends { display: flex; justify-content: space-between; margin-top: -5px; color: var(--subtle); font-size: 9px; }
+
+    .notice {
+      display: flex;
+      gap: 11px;
+      margin-top: 18px;
+      padding: 14px;
+      border: 1px solid rgba(255,197,110,.14);
+      border-radius: 16px;
+      color: #aebdca;
+      background: rgba(255,197,110,.045);
+      font-size: 10px;
+      line-height: 1.55;
+    }
+
+    .notice-icon {
+      display: grid;
+      place-items: center;
+      width: 22px;
+      height: 22px;
+      flex: 0 0 auto;
+      border: 1px solid rgba(255,197,110,.28);
+      border-radius: 50%;
+      color: var(--gold);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .notice strong { color: #eef5f8; font-weight: 690; }
+
+    .self-test {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 46px;
+      margin: 10px 3px 0;
+      color: var(--subtle);
+      font-size: 8px;
+      letter-spacing: .08em;
+    }
+
+    .test-result { display: inline-flex; align-items: center; gap: 6px; color: var(--green); font-weight: 780; }
+    .test-result::before { content: "✓"; display: grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; background: rgba(90,224,180,.1); }
+    .test-result.failed { color: var(--red); }
+    .test-result.failed::before { content: "!"; background: rgba(239,69,90,.1); }
+
+    .footer-line { color: #40566a; text-align: right; }
+
+    .is-simulating .map-live { color: var(--gold); border-color: rgba(255,197,110,.2); }
+    .is-simulating .map-live::before { background: var(--gold); }
+
+    @media (max-width: 359px) {
+      .app { padding-inline: 12px; }
+      .hero { padding-inline: 15px; }
+      .progress-row { grid-template-columns: 78px minmax(0, 1fr); gap: 13px; }
+      .progress-orb { width: 78px; height: 78px; }
+      .instrument { padding-inline: 11px; }
+      .instrument-value { font-size: 14px; }
+      .flight-meta { font-size: 10px; }
+    }
+
+    @media (min-width: 431px) {
+      .app { padding-inline: 20px; }
+      .world-map { min-height: 226px; }
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .status-chip[data-phase="inflight"] .status-dot,
+      .is-live .map-live::before { animation: pulse 2s ease-in-out infinite; }
+      #planeGroup { transition: transform .65s cubic-bezier(.2,.7,.2,1); }
+      .progress-orb { transition: background .45s ease; }
+      .route-flown { transition: stroke-dasharray .5s ease; }
+      .panel { animation: reveal .5s both; }
+      .map-panel { animation-delay: .06s; }
+    }
+
+    @keyframes pulse { 50% { opacity: .45; box-shadow: 0 0 3px currentColor; } }
+    @keyframes reveal { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app is-live" id="app">
+    <header class="masthead">
+      <div class="brand" aria-label="티웨이항공 오프라인 여정">
+        <div class="brand-mark" aria-hidden="true">t'</div>
+        <div class="brand-copy">
+          <div class="brand-name">나의 파리 비행</div>
+          <div class="brand-sub">TW401 · SMART</div>
+        </div>
+      </div>
+      <div class="offline-pill">완전 오프라인</div>
+    </header>
+
+    <section class="panel hero" aria-labelledby="flightTitle">
+      <div class="eyebrow-row">
+        <div>
+          <h1 class="flight-number" id="flightTitle">TW401</h1>
+          <div class="flight-meta">2026.10.03 토 · 직항 · 15시간</div>
+        </div>
+        <div class="status-chip" id="statusChip" data-phase="before">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span id="statusChipText">출발 전</span>
+        </div>
+      </div>
+
+      <div class="route-summary" aria-label="인천에서 파리까지">
+        <div class="airport">
+          <div class="airport-code">ICN</div>
+          <div class="airport-city">서울 · 터미널 1</div>
+          <div class="airport-time">10:10 <span aria-label="한국 표준시">KST</span></div>
+        </div>
+        <div class="route-arrow" aria-hidden="true"></div>
+        <div class="airport">
+          <div class="airport-code">CDG</div>
+          <div class="airport-city">파리 · 터미널 1</div>
+          <div class="airport-time">18:10 <span aria-label="중앙유럽 일광 절약 시간">CEST</span></div>
+        </div>
+      </div>
+
+      <div class="progress-row">
+        <div class="progress-orb" id="progressOrb" role="progressbar" aria-label="전체 비행 진행률" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div class="progress-value"><span id="progressValue">0.0</span><small>%</small></div>
+        </div>
+        <div>
+          <div class="phase-kicker" id="phaseKicker">PRE-FLIGHT</div>
+          <div class="phase-title" id="phaseTitle">출발을 기다리는 중</div>
+          <div class="phase-detail" id="phaseDetail">예정 출발까지 계산 중</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-label"><span>GREAT-CIRCLE ROUTE</span><span>구면 최단 항로 추정</span></div>
+
+    <section class="panel map-panel" aria-labelledby="mapTitle">
+      <div class="map-head">
+        <div>
+          <div class="map-title" id="mapTitle">ICN → CDG</div>
+          <div class="map-caption">대권항로 · 위치 추정</div>
+        </div>
+        <div class="map-live" id="mapMode">DEVICE TIME</div>
+      </div>
+      <svg class="world-map" id="worldMap" viewBox="0 0 1000 500" role="img" aria-labelledby="svgTitle svgDesc">
+        <title id="svgTitle">인천에서 파리까지의 대권항로 지도</title>
+        <desc id="svgDesc">예정 시각에 따라 항로 위 항공기 위치가 움직이는 오프라인 세계 지도입니다.</desc>
+        <defs>
+          <linearGradient id="routeGradient" x1="1" y1="0" x2="0" y2="0">
+            <stop offset="0" stop-color="#55d6ef"/>
+            <stop offset="1" stop-color="#d8f8ff"/>
+          </linearGradient>
+          <filter id="routeGlow" x="-20%" y="-50%" width="140%" height="200%">
+            <feGaussianBlur stdDeviation="4" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="planeGlow" x="-80%" y="-80%" width="260%" height="260%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="4" result="blur"/>
+            <feFlood flood-color="#56d6ef" flood-opacity=".8"/>
+            <feComposite in2="blur" operator="in"/>
+            <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <rect class="ocean-frame" x="9" y="9" width="982" height="482" rx="20"/>
+        <g id="graticuleLayer" aria-hidden="true"></g>
+        <g id="landLayer" aria-hidden="true"></g>
+        <g aria-hidden="true">
+          <path class="route-base" id="routeBase"/>
+          <path class="route-flown" id="routeFlown"/>
+        </g>
+        <g id="cityLayer" aria-hidden="true"></g>
+        <g id="planeGroup" aria-hidden="true">
+          <circle class="plane-halo" r="25"/>
+          <path class="plane-mark" d="M-20,-4 L-5,-4 L4,-18 L10,-18 L6,-4 L19,-4 C23,-4 25,-2 27,0 C25,2 23,4 19,4 L6,4 L10,18 L4,18 L-5,4 L-20,4 L-25,11 L-29,11 L-27,0 L-29,-11 L-25,-11 Z" transform="scale(.72)"/>
+        </g>
+      </svg>
+      <div class="map-readout">
+        <div>현재 추정 좌표<strong id="coordinateReadout">37.4602° N · 126.4407° E</strong></div>
+        <div>기수 방향<strong id="headingReadout">—</strong></div>
+      </div>
+    </section>
+
+    <div class="section-label"><span>FLIGHT INSTRUMENTS</span><span>예정 시각 기준</span></div>
+
+    <section class="instrument-grid" aria-label="비행 시간 계기">
+      <div class="instrument">
+        <div class="instrument-label">경과 시간</div>
+        <div class="instrument-value compact" id="elapsedValue">0시간 00분 00초</div>
+        <div class="instrument-sub">출발 이후</div>
+      </div>
+      <div class="instrument">
+        <div class="instrument-label">남은 시간</div>
+        <div class="instrument-value compact" id="remainingValue">15시간 00분 00초</div>
+        <div class="instrument-sub">도착까지</div>
+      </div>
+      <div class="instrument">
+        <div class="instrument-label">예정 출발</div>
+        <div class="instrument-value">10:10</div>
+        <div class="instrument-sub">10월 3일 · 인천 T1</div>
+      </div>
+      <div class="instrument">
+        <div class="instrument-label">예정 도착</div>
+        <div class="instrument-value">18:10</div>
+        <div class="instrument-sub">10월 3일 · 파리 T1</div>
+      </div>
+    </section>
+
+    <div class="section-label"><span>LOCAL TIME</span><span id="timeSourceLabel">기기 시각 기준</span></div>
+
+    <section class="panel clock-panel" aria-label="인천과 파리의 현지 시각">
+      <div class="clock-row">
+        <div class="clock">
+          <div class="clock-zone">SEOUL · KST</div>
+          <div class="clock-time" id="seoulTime">--:--:--</div>
+          <div class="clock-date" id="seoulDate">—</div>
+        </div>
+        <div class="clock-divider" aria-hidden="true"></div>
+        <div class="clock">
+          <div class="clock-zone">PARIS · CEST</div>
+          <div class="clock-time" id="parisTime">--:--:--</div>
+          <div class="clock-date" id="parisDate">—</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-label"><span>TIME SIMULATOR</span><span>검증 · 데모</span></div>
+
+    <details class="simulator" id="simulator">
+      <summary>
+        <span class="summary-title"><span class="summary-icon" aria-hidden="true">◷</span>시간 시뮬레이션</span>
+        <span style="display:flex;align-items:center"><span class="summary-state" id="summaryState">기기 시각</span><span class="chevron" aria-hidden="true"></span></span>
+      </summary>
+      <div class="sim-body">
+        <div class="sim-readout" id="simReadout">실제 기기 시각을 사용 중입니다.</div>
+        <div class="preset-grid" role="group" aria-label="시간 프리셋">
+          <button class="preset" type="button" data-preset="device" aria-pressed="true">기기 시각</button>
+          <button class="preset" type="button" data-preset="before" aria-pressed="false">출발 전</button>
+          <button class="preset" type="button" data-preset="25" aria-pressed="false">25%</button>
+          <button class="preset" type="button" data-preset="50" aria-pressed="false">50%</button>
+          <button class="preset" type="button" data-preset="75" aria-pressed="false">75%</button>
+          <button class="preset" type="button" data-preset="after" aria-pressed="false">도착 후</button>
+        </div>
+        <div class="slider-wrap">
+          <label for="timeSlider" class="instrument-label">직접 이동</label>
+          <input id="timeSlider" type="range" aria-label="시뮬레이션 시각" step="60000">
+          <div class="slider-ends"><span>출발 1시간 전</span><span>도착 1시간 후</span></div>
+        </div>
+      </div>
+    </details>
+
+    <aside class="notice" aria-label="중요 안내">
+      <div class="notice-icon" aria-hidden="true">i</div>
+      <div><strong>예정 시각 기반 추정이며 실제 지연·우회·실시간 위치를 반영하지 않음.</strong><br>GPS나 항공기 데이터가 아닌 일정 계산입니다. 정확한 표시를 위해 <strong>기기 시간이 정확해야 함</strong>.</div>
+    </aside>
+
+    <footer class="self-test">
+      <span class="test-result" id="testResult">SELF-TEST 실행 중</span>
+      <span class="footer-line">NO NETWORK · NO GPS · v1.0</span>
+    </footer>
+  </main>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const DEPARTURE_MS = Date.parse('2026-10-03T01:10:00Z');
+      const ARRIVAL_MS = Date.parse('2026-10-03T16:10:00Z');
+      const DURATION_MS = ARRIVAL_MS - DEPARTURE_MS;
+      const ICN = Object.freeze({ lat: 37.4602, lon: 126.4407 });
+      const CDG = Object.freeze({ lat: 49.0097, lon: 2.5479 });
+      const MAP = Object.freeze({ width: 1000, height: 500, scale: 178 });
+      const RAD = Math.PI / 180;
+      const DEG = 180 / Math.PI;
+
+      const $ = (id) => document.getElementById(id);
+      const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+      const toVector = ({ lat, lon }) => {
+        const phi = lat * RAD;
+        const lambda = lon * RAD;
+        return [Math.cos(phi) * Math.cos(lambda), Math.cos(phi) * Math.sin(lambda), Math.sin(phi)];
+      };
+
+      function slerp(a, b, t) {
+        const va = toVector(a);
+        const vb = toVector(b);
+        const dot = clamp(va[0] * vb[0] + va[1] * vb[1] + va[2] * vb[2], -1, 1);
+        const omega = Math.acos(dot);
+        if (omega < 1e-12) return { lat: a.lat, lon: a.lon };
+        const sinOmega = Math.sin(omega);
+        const scaleA = Math.sin((1 - t) * omega) / sinOmega;
+        const scaleB = Math.sin(t * omega) / sinOmega;
+        const v = va.map((value, index) => value * scaleA + vb[index] * scaleB);
+        return {
+          lat: Math.atan2(v[2], Math.hypot(v[0], v[1])) * DEG,
+          lon: Math.atan2(v[1], v[0]) * DEG
+        };
+      }
+
+      // Equal Earth projection keeps continental proportions readable on a phone.
+      function project({ lat, lon }) {
+        const A1 = 1.340264, A2 = -0.081106, A3 = 0.000893, A4 = 0.003796;
+        const lambda = lon * RAD;
+        const theta = Math.asin(Math.sqrt(3) / 2 * Math.sin(lat * RAD));
+        const theta2 = theta * theta;
+        const theta6 = theta2 * theta2 * theta2;
+        const denominator = 3 * (9 * A4 * theta6 * theta2 + 7 * A3 * theta6 + 3 * A2 * theta2 + A1);
+        const x = 2 * Math.sqrt(3) * lambda * Math.cos(theta) / denominator;
+        const y = theta * (A4 * theta6 * theta2 + A3 * theta6 + A2 * theta2 + A1);
+        return { x: MAP.width / 2 + x * MAP.scale, y: MAP.height / 2 - y * MAP.scale };
+      }
+
+      // A crossing is explicitly cut at ±180°, preventing a line across the map.
+      function splitAntimeridian(points) {
+        if (!points.length) return [];
+        const segments = [[points[0]]];
+        for (let i = 1; i < points.length; i += 1) {
+          const previous = points[i - 1];
+          const current = points[i];
+          const delta = current.lon - previous.lon;
+          // +180 and -180 are the same meridian. A full-width polar edge is
+          // intentional, while ordinary crossings are split below.
+          if (Math.abs(delta) >= 359.999) {
+            segments[segments.length - 1].push(current);
+            continue;
+          }
+          if (Math.abs(delta) <= 180) {
+            segments[segments.length - 1].push(current);
+            continue;
+          }
+          const eastward = delta < -180;
+          const boundary = eastward ? 180 : -180;
+          const adjustedLon = eastward ? current.lon + 360 : current.lon - 360;
+          const fraction = (boundary - previous.lon) / (adjustedLon - previous.lon);
+          const latitude = previous.lat + (current.lat - previous.lat) * fraction;
+          segments[segments.length - 1].push({ lat: latitude, lon: boundary });
+          segments.push([{ lat: latitude, lon: -boundary }, current]);
+        }
+        return segments;
+      }
+
+      function pathFromGeo(points, close = false) {
+        return splitAntimeridian(points).map((segment) => {
+          const commands = segment.map((point, index) => {
+            const p = project(point);
+            return `${index ? 'L' : 'M'}${p.x.toFixed(2)},${p.y.toFixed(2)}`;
+          });
+          if (close) commands.push('Z');
+          return commands.join(' ');
+        }).join(' ');
+      }
+
+      const LAND = [
+        // North America
+        [[-168,66],[-156,58],[-149,60],[-141,59],[-134,55],[-129,51],[-124,49],[-124,42],[-117,33],[-110,29],[-103,24],[-97,19],[-91,18],[-86,21],[-82,25],[-81,31],[-75,36],[-70,42],[-66,44],[-62,50],[-57,52],[-60,58],[-67,61],[-75,64],[-82,72],[-96,78],[-112,76],[-126,71],[-141,70],[-154,72]],
+        // Greenland
+        [[-73,60],[-58,59],[-44,60],[-29,68],[-20,75],[-27,82],[-45,84],[-62,80],[-70,72]],
+        // South America
+        [[-81,12],[-72,12],[-65,10],[-59,7],[-51,3],[-47,-5],[-38,-10],[-39,-18],[-44,-23],[-48,-29],[-52,-34],[-56,-42],[-65,-55],[-72,-51],[-74,-40],[-71,-31],[-75,-20],[-80,-6]],
+        // Eurasia
+        [[-11,36],[-9,43],[-3,48],[4,52],[8,58],[17,69],[27,71],[38,68],[48,70],[59,74],[74,75],[91,78],[110,74],[127,71],[145,72],[162,69],[179,65],[173,59],[160,56],[151,52],[142,49],[136,43],[130,41],[126,35],[121,30],[116,24],[109,20],[102,12],[98,8],[91,10],[86,20],[78,22],[73,19],[68,24],[60,25],[55,30],[48,29],[42,36],[35,36],[31,32],[27,35],[23,40],[16,39],[12,43],[8,43],[2,40],[-4,43]],
+        // Africa
+        [[-17,37],[-5,36],[5,37],[12,34],[20,32],[30,31],[35,28],[43,12],[51,10],[49,2],[43,-12],[36,-19],[31,-29],[20,-35],[13,-34],[5,-29],[-1,-18],[-8,-5],[-15,5],[-17,18],[-13,28]],
+        // Arabia
+        [[35,30],[48,30],[57,24],[54,16],[45,12],[40,19]],
+        // India / SE Asia
+        [[67,24],[76,29],[88,24],[92,21],[96,16],[104,10],[108,4],[103,1],[98,7],[92,9],[86,20],[80,8],[77,7],[73,17]],
+        // Australia
+        [[113,-22],[116,-34],[126,-38],[139,-38],[151,-31],[154,-24],[146,-17],[137,-12],[126,-14],[118,-18]],
+        // United Kingdom
+        [[-8,50],[-6,57],[-2,59],[1,53]],
+        // Japan
+        [[130,32],[134,34],[137,37],[141,39],[145,44],[143,35],[138,33]],
+        // Madagascar
+        [[46,-14],[50,-17],[50,-25],[45,-26],[43,-20]],
+        // New Zealand
+        [[167,-35],[174,-40],[176,-46],[169,-44]],
+        // Iceland
+        [[-24,64],[-15,64],[-14,67],[-21,67]],
+        // Antarctica, split to preserve the date line
+        [[-180,-70],[-150,-72],[-120,-74],[-90,-72],[-60,-75],[-30,-72],[0,-74],[30,-72],[60,-75],[90,-72],[120,-75],[150,-71],[180,-70],[180,-90],[-180,-90]]
+      ].map((polygon) => polygon.map(([lon, lat]) => ({ lon, lat })));
+
+      const NS = 'http://www.w3.org/2000/svg';
+      function svgElement(name, attributes = {}) {
+        const node = document.createElementNS(NS, name);
+        Object.entries(attributes).forEach(([key, value]) => node.setAttribute(key, value));
+        return node;
+      }
+
+      function drawMap() {
+        const graticule = $('graticuleLayer');
+        for (let lon = -150; lon <= 150; lon += 30) {
+          const points = [];
+          for (let lat = -75; lat <= 75; lat += 3) points.push({ lat, lon });
+          graticule.append(svgElement('path', { class: 'graticule', d: pathFromGeo(points) }));
+        }
+        for (let lat = -60; lat <= 60; lat += 30) {
+          const points = [];
+          for (let lon = -180; lon <= 180; lon += 3) points.push({ lat, lon });
+          graticule.append(svgElement('path', { class: 'graticule', d: pathFromGeo(points) }));
+        }
+
+        const landLayer = $('landLayer');
+        LAND.forEach((polygon) => landLayer.append(svgElement('path', { class: 'land', d: pathFromGeo(polygon, true) })));
+
+        const routePoints = [];
+        for (let i = 0; i <= 240; i += 1) routePoints.push(slerp(ICN, CDG, i / 240));
+        const routeD = pathFromGeo(routePoints);
+        $('routeBase').setAttribute('d', routeD);
+        $('routeFlown').setAttribute('d', routeD);
+
+        const cities = [
+          { ...ICN, code: 'ICN', anchor: 'start', dx: 13, dy: -13 },
+          { ...CDG, code: 'CDG', anchor: 'end', dx: -13, dy: -13 }
+        ];
+        const cityLayer = $('cityLayer');
+        cities.forEach((city) => {
+          const p = project(city);
+          cityLayer.append(svgElement('circle', { class: 'city-ring', cx: p.x, cy: p.y, r: 7 }));
+          cityLayer.append(svgElement('circle', { class: 'city-core', cx: p.x, cy: p.y, r: 2.5 }));
+          const label = svgElement('text', { class: 'map-label', x: p.x + city.dx, y: p.y + city.dy, 'text-anchor': city.anchor });
+          label.textContent = city.code;
+          cityLayer.append(label);
+        });
+      }
+
+      function progressAt(timeMs) {
+        return clamp((timeMs - DEPARTURE_MS) / DURATION_MS, 0, 1);
+      }
+
+      function formatDuration(durationMs) {
+        const totalSeconds = Math.max(0, Math.floor(durationMs / 1000));
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        return `${hours}시간 ${String(minutes).padStart(2, '0')}분 ${String(seconds).padStart(2, '0')}초`;
+      }
+
+      function zonedParts(timeMs, timeZone) {
+        const parts = new Intl.DateTimeFormat('ko-KR', {
+          timeZone, month: 'long', day: 'numeric', weekday: 'short',
+          hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23'
+        }).formatToParts(new Date(timeMs));
+        const value = (type) => parts.find((part) => part.type === type)?.value || '';
+        return {
+          time: `${value('hour')}:${value('minute')}:${value('second')}`,
+          date: `${value('month')} ${value('day')} · ${value('weekday')}`
+        };
+      }
+
+      function formatSimTime(timeMs) {
+        return new Intl.DateTimeFormat('ko-KR', {
+          timeZone: 'UTC', month: '2-digit', day: '2-digit',
+          hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23'
+        }).format(new Date(timeMs)) + ' UTC';
+      }
+
+      function formatCoordinate(value, positive, negative) {
+        return `${Math.abs(value).toFixed(4)}° ${value >= 0 ? positive : negative}`;
+      }
+
+      function headingAt(progress) {
+        const epsilon = 0.0002;
+        const before = project(slerp(ICN, CDG, clamp(progress - epsilon, 0, 1)));
+        const after = project(slerp(ICN, CDG, clamp(progress + epsilon, 0, 1)));
+        return Math.atan2(after.y - before.y, after.x - before.x) * DEG;
+      }
+
+      let mode = 'device';
+      let simulatedMs = DEPARTURE_MS;
+      let routeLength = 0;
+
+      function setPressedPreset(name) {
+        document.querySelectorAll('[data-preset]').forEach((button) => {
+          button.setAttribute('aria-pressed', String(button.dataset.preset === name));
+        });
+      }
+
+      function effectiveTime() {
+        return mode === 'device' ? Date.now() : simulatedMs;
+      }
+
+      function render(timeMs = effectiveTime()) {
+        const progress = progressAt(timeMs);
+        const point = slerp(ICN, CDG, progress);
+        const projected = project(point);
+        const heading = headingAt(progress);
+        const elapsed = clamp(timeMs - DEPARTURE_MS, 0, DURATION_MS);
+        const remaining = clamp(ARRIVAL_MS - timeMs, 0, DURATION_MS);
+        const before = timeMs < DEPARTURE_MS;
+        const arrived = timeMs >= ARRIVAL_MS;
+        const phase = before ? 'before' : arrived ? 'arrived' : 'inflight';
+
+        $('progressValue').textContent = (progress * 100).toFixed(1);
+        $('progressOrb').style.setProperty('--progress-deg', `${progress * 360}deg`);
+        $('progressOrb').setAttribute('aria-valuenow', (progress * 100).toFixed(1));
+        $('elapsedValue').textContent = formatDuration(elapsed);
+        $('remainingValue').textContent = formatDuration(remaining);
+        $('coordinateReadout').textContent = `${formatCoordinate(point.lat, 'N', 'S')} · ${formatCoordinate(point.lon, 'E', 'W')}`;
+        $('headingReadout').textContent = `${Math.round((heading + 360) % 360).toString().padStart(3, '0')}° MAP`;
+        $('planeGroup').setAttribute('transform', `translate(${projected.x.toFixed(2)} ${projected.y.toFixed(2)}) rotate(${heading.toFixed(2)})`);
+
+        if (routeLength) {
+          const flown = Math.max(0, routeLength * progress);
+          $('routeFlown').style.strokeDasharray = `${flown} ${routeLength + 1}`;
+        }
+
+        $('statusChip').dataset.phase = phase;
+        if (before) {
+          $('statusChipText').textContent = '출발 전';
+          $('phaseKicker').textContent = 'PRE-FLIGHT';
+          $('phaseTitle').textContent = '출발을 기다리는 중';
+          $('phaseDetail').textContent = `예정 출발까지 ${formatDuration(DEPARTURE_MS - timeMs)}`;
+        } else if (arrived) {
+          $('statusChipText').textContent = '도착 완료';
+          $('phaseKicker').textContent = 'ARRIVED';
+          $('phaseTitle').textContent = '파리에 도착했습니다';
+          $('phaseDetail').textContent = `예정 비행 ${formatDuration(DURATION_MS)} 완료`;
+        } else {
+          $('statusChipText').textContent = '비행 중';
+          $('phaseKicker').textContent = 'EN ROUTE';
+          $('phaseTitle').textContent = '파리로 비행 중';
+          $('phaseDetail').textContent = `출발 후 ${formatDuration(elapsed)} · ${formatDuration(remaining)} 남음`;
+        }
+
+        const seoul = zonedParts(timeMs, 'Asia/Seoul');
+        const paris = zonedParts(timeMs, 'Europe/Paris');
+        $('seoulTime').textContent = seoul.time;
+        $('seoulDate').textContent = seoul.date;
+        $('parisTime').textContent = paris.time;
+        $('parisDate').textContent = paris.date;
+
+        const isLive = mode === 'device';
+        $('app').classList.toggle('is-live', isLive);
+        $('app').classList.toggle('is-simulating', !isLive);
+        $('mapMode').textContent = isLive ? 'DEVICE TIME' : 'SIMULATED';
+        $('timeSourceLabel').textContent = isLive ? '기기 시각 기준' : '시뮬레이션 시각';
+        $('summaryState').textContent = isLive ? '기기 시각' : '시뮬레이션 중';
+        $('simReadout').textContent = isLive ? `실제 기기 시각 · ${formatSimTime(timeMs)}` : `시뮬레이션 · ${formatSimTime(timeMs)}`;
+
+        const slider = $('timeSlider');
+        if (!isLive || (timeMs >= Number(slider.min) && timeMs <= Number(slider.max))) slider.value = String(timeMs);
+
+        document.body.dataset.phase = phase;
+        document.body.dataset.mode = mode;
+        document.body.dataset.progress = progress.toFixed(6);
+      }
+
+      function usePreset(name) {
+        const values = {
+          before: DEPARTURE_MS - 30 * 60 * 1000,
+          '25': DEPARTURE_MS + DURATION_MS * .25,
+          '50': DEPARTURE_MS + DURATION_MS * .5,
+          '75': DEPARTURE_MS + DURATION_MS * .75,
+          after: ARRIVAL_MS + 30 * 60 * 1000
+        };
+        if (name === 'device') {
+          mode = 'device';
+        } else {
+          mode = 'simulated';
+          simulatedMs = values[name];
+        }
+        setPressedPreset(name);
+        render();
+      }
+
+      function runSelfTests() {
+        const tests = [];
+        const test = (name, condition) => tests.push({ name, pass: Boolean(condition) });
+        const near = (actual, expected, tolerance = 1e-6) => Math.abs(actual - expected) <= tolerance;
+        const midpoint = slerp(ICN, CDG, .5);
+        const start = slerp(ICN, CDG, 0);
+        const end = slerp(ICN, CDG, 1);
+
+        test('UTC departure boundary', DEPARTURE_MS === 1790989800000);
+        test('UTC arrival boundary', ARRIVAL_MS === 1791043800000);
+        test('15 hour duration', DURATION_MS === 15 * 60 * 60 * 1000);
+        test('before progress', progressAt(DEPARTURE_MS - 1) === 0);
+        test('0% progress', progressAt(DEPARTURE_MS) === 0);
+        test('25% progress', progressAt(DEPARTURE_MS + DURATION_MS * .25) === .25);
+        test('50% progress', progressAt(DEPARTURE_MS + DURATION_MS * .5) === .5);
+        test('75% progress', progressAt(DEPARTURE_MS + DURATION_MS * .75) === .75);
+        test('100% progress', progressAt(ARRIVAL_MS) === 1);
+        test('after progress', progressAt(ARRIVAL_MS + 1) === 1);
+        test('start coordinate', near(start.lat, 37.4602) && near(start.lon, 126.4407));
+        test('mid coordinate', near(midpoint.lat, 63.0647049) && near(midpoint.lon, 74.6108500));
+        test('end coordinate', near(end.lat, 49.0097) && near(end.lon, 2.5479));
+        test('date-line split', splitAntimeridian([{ lat: 10, lon: 170 }, { lat: 12, lon: -170 }]).length === 2);
+        test('Seoul schedule', zonedParts(DEPARTURE_MS, 'Asia/Seoul').time === '10:10:00');
+        test('Paris schedule', zonedParts(ARRIVAL_MS, 'Europe/Paris').time === '18:10:00');
+
+        const passed = tests.filter((item) => item.pass).length;
+        const result = $('testResult');
+        result.textContent = `SELF-TEST ${passed}/${tests.length} PASS`;
+        result.classList.toggle('failed', passed !== tests.length);
+        result.title = tests.filter((item) => !item.pass).map((item) => item.name).join(', ');
+        window.__TW401_SELF_TEST__ = Object.freeze({ passed, total: tests.length, tests });
+        return window.__TW401_SELF_TEST__;
+      }
+
+      function initialize() {
+        drawMap();
+        routeLength = $('routeFlown').getTotalLength();
+        $('timeSlider').min = String(DEPARTURE_MS - 60 * 60 * 1000);
+        $('timeSlider').max = String(ARRIVAL_MS + 60 * 60 * 1000);
+        $('timeSlider').value = String(DEPARTURE_MS);
+
+        document.querySelectorAll('[data-preset]').forEach((button) => {
+          button.addEventListener('click', () => usePreset(button.dataset.preset));
+        });
+        $('timeSlider').addEventListener('input', (event) => {
+          mode = 'simulated';
+          simulatedMs = Number(event.target.value);
+          setPressedPreset('');
+          render();
+        });
+
+        runSelfTests();
+        render();
+        window.setInterval(() => render(), 1000);
+
+        window.__flightTracker = Object.freeze({
+          constants: Object.freeze({ DEPARTURE_MS, ARRIVAL_MS, DURATION_MS, ICN, CDG }),
+          slerp, project, splitAntimeridian, progressAt, render,
+          usePreset,
+          getState: () => ({ mode, timeMs: effectiveTime(), progress: progressAt(effectiveTime()) })
+        });
+      }
+
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initialize, { once: true });
+      else initialize();
+    })();
+  </script>
+</body>
+</html>
