@@ -1,0 +1,30 @@
+{
+  "id": "./",
+  "name": "TRINITY TW401 Flight Tracker",
+  "short_name": "TW401",
+  "description": "인천에서 파리까지의 오프라인 비행 위치·시간 추정기",
+  "lang": "ko-KR",
+  "dir": "ltr",
+  "start_url": "./TW401-flight-tracker.html?source=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone"],
+  "orientation": "any",
+  "background_color": "#07111f",
+  "theme_color": "#07111f",
+  "categories": ["travel", "utilities"],
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

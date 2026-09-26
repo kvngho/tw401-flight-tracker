@@ -8,7 +8,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="TRINITY TW401">
   <meta name="theme-color" content="#07111f">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src data:; font-src 'none'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src 'self' data:; font-src 'none'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png">
   <link rel="icon" href="data:,">
   <title>TRINITY AIRWAYS TW401 · 오프라인 비행 트래커</title>
   <style>
@@ -127,6 +129,22 @@
       background: var(--green);
       box-shadow: 0 0 10px rgba(90,224,180,.72);
     }
+
+    .offline-pill[data-state="checking"] {
+      color: var(--gold);
+      border-color: rgba(255,197,110,.25);
+      background: rgba(255,197,110,.08);
+    }
+
+    .offline-pill[data-state="checking"]::before { background: var(--gold); }
+
+    .offline-pill[data-state="error"] {
+      color: #ff9daa;
+      border-color: rgba(239,69,90,.3);
+      background: rgba(239,69,90,.08);
+    }
+
+    .offline-pill[data-state="error"]::before { background: var(--red); }
 
     .panel {
       position: relative;
@@ -519,6 +537,67 @@
 
     .slider-ends { display: flex; justify-content: space-between; margin-top: -5px; color: var(--subtle); font-size: 9px; }
 
+    details.install-guide {
+      overflow: hidden;
+      border: 1px solid rgba(90,224,180,.18);
+      border-radius: 18px;
+      background: rgba(10,31,40,.7);
+    }
+
+    details.install-guide > summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 52px;
+      padding: 0 15px;
+      cursor: pointer;
+      list-style: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    details.install-guide > summary::-webkit-details-marker { display: none; }
+    details.install-guide[open] .chevron { transform: rotate(225deg); }
+
+    .install-body { padding: 0 15px 15px; border-top: 1px solid var(--line); }
+
+    .install-status {
+      display: grid;
+      grid-template-columns: 26px minmax(0, 1fr);
+      gap: 10px;
+      align-items: center;
+      margin: 13px 0 11px;
+      color: #d8e8ef;
+      font-size: 11px;
+      font-weight: 730;
+    }
+
+    .install-status::before {
+      content: "✓";
+      display: grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      color: var(--green);
+      background: rgba(90,224,180,.1);
+    }
+
+    .install-status[data-state="checking"]::before { content: "…"; color: var(--gold); background: rgba(255,197,110,.1); }
+    .install-status[data-state="error"]::before { content: "!"; color: var(--red); background: rgba(239,69,90,.1); }
+    .install-status small { display: block; margin-top: 3px; color: var(--muted); font-size: 9px; font-weight: 560; line-height: 1.45; }
+
+    .install-steps {
+      margin: 0;
+      padding: 0 0 0 22px;
+      color: #aebfcb;
+      font-size: 10px;
+      line-height: 1.65;
+    }
+
+    .install-steps li + li { margin-top: 3px; }
+    .install-steps strong { color: #ecf6fa; font-weight: 690; }
+
     .notice {
       display: flex;
       gap: 11px;
@@ -600,6 +679,8 @@
           "instruments instruments"
           "clock-label simulator-label"
           "clock simulator"
+          "pwa-label pwa-label"
+          "pwa pwa"
           "notice notice"
           "footer footer";
         column-gap: 12px;
@@ -650,6 +731,8 @@
       .clock-panel { grid-area: clock; align-self: start; }
       .simulator-label-row { grid-area: simulator-label; }
       details.simulator { grid-area: simulator; align-self: start; }
+      .pwa-label-row { grid-area: pwa-label; }
+      details.install-guide { grid-area: pwa; }
       .notice { grid-area: notice; }
       .self-test { grid-area: footer; }
 
@@ -704,7 +787,7 @@
           </svg>
         </div>
       </div>
-      <div class="offline-pill">완전 오프라인</div>
+      <div class="offline-pill" id="offlinePill" data-state="checking">오프라인 확인 중</div>
     </header>
 
     <section class="panel hero" aria-labelledby="flightTitle">
@@ -858,6 +941,26 @@
           <input id="timeSlider" type="range" aria-label="시뮬레이션 시각" step="60000">
           <div class="slider-ends"><span>출발 1시간 전</span><span>도착 1시간 후</span></div>
         </div>
+      </div>
+    </details>
+
+    <div class="section-label pwa-label-row"><span>OFFLINE APP</span><span>iPhone 홈 화면용</span></div>
+
+    <details class="install-guide" id="installGuide">
+      <summary>
+        <span class="summary-title"><span class="summary-icon" aria-hidden="true">↓</span>오프라인 설치 안내</span>
+        <span style="display:flex;align-items:center"><span class="summary-state" id="installSummary">확인 중</span><span class="chevron" aria-hidden="true"></span></span>
+      </summary>
+      <div class="install-body">
+        <div class="install-status" id="installStatus" data-state="checking">
+          <div><span id="installStatusTitle">오프라인 저장 상태 확인 중</span><small id="installStatusDetail">Service Worker와 앱 파일을 확인하고 있습니다.</small></div>
+        </div>
+        <ol class="install-steps">
+          <li>인터넷이 있을 때 이 페이지를 <strong>Safari에서 한 번 열기</strong></li>
+          <li>공유 버튼을 눌러 <strong>홈 화면에 추가</strong></li>
+          <li>추가된 아이콘으로 한 번 실행해 <strong>오프라인 준비 완료</strong> 확인</li>
+          <li>출발 전에 <strong>비행기 모드로 실제 실행 테스트</strong></li>
+        </ol>
       </div>
     </details>
 
@@ -1128,6 +1231,66 @@
       let mode = 'device';
       let simulatedMs = DEPARTURE_MS;
       let routeLength = 0;
+      let offlineReady = false;
+
+      function setOfflineUI(state, title, detail) {
+        const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+        $('offlinePill').dataset.state = state;
+        $('offlinePill').textContent = state === 'ready'
+          ? (navigator.onLine ? '오프라인 준비 완료' : '오프라인 작동 중')
+          : state === 'error' ? '오프라인 확인 필요' : '오프라인 준비 중';
+        $('installStatus').dataset.state = state;
+        $('installStatusTitle').textContent = title;
+        $('installStatusDetail').textContent = detail;
+        $('installSummary').textContent = standalone && state === 'ready'
+          ? '홈 화면 앱 · 준비 완료'
+          : state === 'ready' ? '저장 완료' : state === 'error' ? '확인 필요' : '준비 중';
+      }
+
+      async function setupOfflineApp() {
+        if (location.protocol === 'file:') {
+          offlineReady = true;
+          setOfflineUI('ready', '단일 HTML은 오프라인으로 열림', '홈 화면 PWA 설치와 자동 업데이트는 HTTPS 주소에서 사용할 수 있습니다.');
+          return;
+        }
+        if (!('serviceWorker' in navigator)) {
+          setOfflineUI('error', '이 브라우저는 오프라인 설치를 지원하지 않음', '최신 Safari에서 HTTPS 주소로 다시 열어주세요.');
+          return;
+        }
+
+        setOfflineUI('checking', '앱 파일을 이 기기에 저장하는 중', '이 화면을 닫지 말고 잠시 기다려주세요.');
+        try {
+          const registration = await navigator.serviceWorker.register('./sw.js', { scope: './' });
+          await navigator.serviceWorker.ready;
+          offlineReady = true;
+          const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+          setOfflineUI(
+            'ready',
+            standalone ? '홈 화면 앱 · 오프라인 준비 완료' : '오프라인 파일 저장 완료',
+            standalone ? '이제 비행기 모드에서도 이 아이콘으로 실행할 수 있습니다.' : '공유 → 홈 화면에 추가한 뒤, 아이콘으로 한 번 더 실행하세요.'
+          );
+          registration.addEventListener('updatefound', () => {
+            setOfflineUI('checking', '새 버전을 저장하는 중', '완료되면 오프라인 준비 상태로 자동 전환됩니다.');
+            const worker = registration.installing;
+            worker?.addEventListener('statechange', () => {
+              if (worker.state === 'installed') {
+                offlineReady = true;
+                setOfflineUI('ready', '새 버전 저장 완료', '다음 실행부터 업데이트된 오프라인 앱을 사용합니다.');
+              }
+            });
+          });
+        } catch (error) {
+          console.error('Offline setup failed:', error);
+          setOfflineUI('error', '오프라인 저장에 실패함', '인터넷 연결과 HTTPS 주소를 확인한 뒤 페이지를 새로고침하세요.');
+        }
+      }
+
+      window.addEventListener('online', () => {
+        if (offlineReady) setOfflineUI('ready', '오프라인 파일 저장 완료', '공유 → 홈 화면에 추가한 뒤, 아이콘으로 한 번 더 실행하세요.');
+      });
+      window.addEventListener('offline', () => {
+        if (offlineReady) setOfflineUI('ready', '오프라인 캐시로 실행 중', '서버 연결 없이 이 기기에 저장된 앱 파일을 사용하고 있습니다.');
+      });
 
       function setPressedPreset(name) {
         document.querySelectorAll('[data-preset]').forEach((button) => {
@@ -1288,12 +1451,13 @@
 
         runSelfTests();
         render();
+        setupOfflineApp();
         window.setInterval(() => render(), 1000);
 
         window.__flightTracker = Object.freeze({
           constants: Object.freeze({ DEPARTURE_MS, ARRIVAL_MS, DURATION_MS, ICN, CDG }),
           slerp, project, splitAntimeridian, progressAt, nearestRouteCity, render,
-          usePreset,
+          usePreset, setupOfflineApp,
           getState: () => ({ mode, timeMs: effectiveTime(), progress: progressAt(effectiveTime()) })
         });
       }
