@@ -1,7 +1,7 @@
 'use strict';
 
 const CACHE_PREFIX = 'tw401-flight-tracker-';
-const CACHE_NAME = `${CACHE_PREFIX}v1-20260926`;
+const CACHE_NAME = `${CACHE_PREFIX}v2-20260926`;
 const APP_SHELL = [
   './',
   './index.html',

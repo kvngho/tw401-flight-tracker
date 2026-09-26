@@ -643,6 +643,9 @@
     .test-result.failed { color: var(--red); }
     .test-result.failed::before { content: "!"; background: rgba(239,69,90,.1); }
 
+    .footer-status { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+    .footer-signature { color: #6f8798; font-weight: 650; letter-spacing: .04em; }
+
     .footer-line { color: #40566a; text-align: right; }
 
     .is-simulating .map-live { color: var(--gold); border-color: rgba(255,197,110,.2); }
@@ -828,19 +831,19 @@
       </div>
     </section>
 
-    <div class="section-label route-label"><span>GREAT-CIRCLE ROUTE</span><span>구면 최단 항로 추정</span></div>
+    <div class="section-label route-label"><span>HISTORICAL ROUTE</span><span>북한 영공 우회</span></div>
 
     <section class="panel map-panel" aria-labelledby="mapTitle">
       <div class="map-head">
         <div>
           <div class="map-title" id="mapTitle">ICN → CDG</div>
-          <div class="map-caption">대권항로 · 위치 추정</div>
+          <div class="map-caption">2024.10.23 실운항 참고 경로</div>
         </div>
         <div class="map-live" id="mapMode">DEVICE TIME</div>
       </div>
-      <svg class="world-map" id="worldMap" viewBox="430 -5 450 220" role="img" aria-labelledby="svgTitle svgDesc">
-        <title id="svgTitle">인천에서 파리까지의 대권항로 지도</title>
-        <desc id="svgDesc">예정 시각에 따라 인천과 파리 사이 항로 위 항공기 위치가 움직이는 오프라인 지도입니다.</desc>
+      <svg class="world-map" id="worldMap" viewBox="470 25 375 170" role="img" aria-labelledby="svgTitle svgDesc">
+        <title id="svgTitle">인천에서 파리까지 북한을 우회하는 참고 항로 지도</title>
+        <desc id="svgDesc">2024년 10월 23일 TW401 공개 추적 기록을 단순화한 참고 항로 위에서 예정 시각에 따라 항공기 위치가 움직이는 오프라인 지도입니다.</desc>
         <defs>
           <linearGradient id="routeGradient" x1="1" y1="0" x2="0" y2="0">
             <stop offset="0" stop-color="#55d6ef"/>
@@ -857,12 +860,12 @@
             <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
         </defs>
-        <rect class="ocean-frame" x="438" y="3" width="434" height="204" rx="18"/>
+        <rect class="ocean-frame" x="478" y="33" width="359" height="154" rx="18"/>
         <g id="graticuleLayer" aria-hidden="true"></g>
         <g id="landLayer" aria-hidden="true"></g>
         <g aria-hidden="true">
           <path class="route-base" id="routeBase"/>
-          <path class="route-flown" id="routeFlown"/>
+          <path class="route-flown" id="routeFlown" pathLength="1" stroke-dasharray="0 1"/>
         </g>
         <g id="cityLayer" aria-hidden="true"></g>
         <g id="planeGroup" aria-hidden="true">
@@ -966,12 +969,12 @@
 
     <aside class="notice" aria-label="중요 안내">
       <div class="notice-icon" aria-hidden="true">i</div>
-      <div><strong>예정 시각 기반 추정이며 실제 지연·우회·실시간 위치를 반영하지 않음.</strong><br>국가·도시는 항로에서 가장 가까운 주요 도시 기준입니다. 정확한 표시를 위해 <strong>기기 시간이 정확해야 함</strong>.</div>
+      <div><strong>예정 시각 기반 추정이며 실제 지연·당일 항로·실시간 위치를 반영하지 않음.</strong><br>지도는 2024.10.23 TW401 공개 추적 기록을 단순화한 북한 우회 참고 경로입니다. 국가·도시는 가까운 주요 도시 기준이며, 정확한 표시를 위해 <strong>기기 시간이 정확해야 함</strong>.</div>
     </aside>
 
     <footer class="self-test">
-      <span class="test-result" id="testResult">SELF-TEST 실행 중</span>
-      <span class="footer-line">NO NETWORK · NO GPS · v1.0</span>
+      <span class="footer-status"><span class="test-result" id="testResult">SELF-TEST 실행 중</span><span class="footer-signature">from kangho</span></span>
+      <span class="footer-line">NO NETWORK · NO GPS · v1.1</span>
     </footer>
   </main>
 
@@ -985,34 +988,69 @@
       const ICN = Object.freeze({ lat: 37.4602, lon: 126.4407 });
       const CDG = Object.freeze({ lat: 49.0097, lon: 2.5479 });
       const MAP = Object.freeze({ width: 1000, height: 500, scale: 178 });
+      // Digitized and simplified from the public Flightradar24 track capture of
+      // TW401 flown on 2024-10-23. Each leg still uses spherical interpolation.
+      // The corridor crosses the Yellow Sea into China instead of DPRK airspace.
+      const ROUTE_WAYPOINTS = Object.freeze([
+        { lat: 37.4602, lon: 126.4407 },
+        { lat: 37.3017, lon: 122.7503 },
+        { lat: 39.3824, lon: 117.2146 },
+        { lat: 39.1825, lon: 115.8966 },
+        { lat: 38.1066, lon: 112.9091 },
+        { lat: 38.1743, lon: 112.1183 },
+        { lat: 39.4489, lon: 110.3610 },
+        { lat: 39.4489, lon: 108.6915 },
+        { lat: 40.8636, lon: 106.4070 },
+        { lat: 42.2486, lon: 101.1349 },
+        { lat: 42.0571, lon: 95.5114 },
+        { lat: 42.9773, lon: 94.1056 },
+        { lat: 44.3166, lon: 88.3942 },
+        { lat: 46.7584, lon: 83.8251 },
+        { lat: 47.0232, lon: 82.9464 },
+        { lat: 47.7807, lon: 72.2266 },
+        { lat: 47.7228, lon: 67.8333 },
+        { lat: 46.5812, lon: 61.4189 },
+        { lat: 45.2939, lon: 55.9712 },
+        { lat: 41.5437, lon: 48.9418 },
+        { lat: 41.3501, lon: 47.7995 },
+        { lat: 41.8009, lon: 44.1091 },
+        { lat: 42.1530, lon: 33.7408 },
+        { lat: 42.8512, lon: 30.4018 },
+        { lat: 44.3474, lon: 27.4143 },
+        { lat: 46.8468, lon: 20.7364 },
+        { lat: 48.9249, lon: 12.5648 },
+        { lat: 49.5991, lon: 7.7321 },
+        { lat: 49.5991, lon: 5.3597 },
+        { lat: 49.0097, lon: 2.5479 }
+      ].map((point) => Object.freeze(point)));
       const ROUTE_CITIES = Object.freeze([
         { country: '대한민국', city: '인천', lat: 37.4602, lon: 126.4407 },
-        { country: '북한', city: '개성', lat: 37.971, lon: 126.554 },
-        { country: '북한', city: '평양', lat: 39.039, lon: 125.763 },
-        { country: '중국', city: '단둥', lat: 40.124, lon: 124.394 },
-        { country: '중국', city: '퉁랴오', lat: 43.617, lon: 122.267 },
-        { country: '몽골', city: '초이발산', lat: 48.078, lon: 114.535 },
-        { country: '러시아', city: '치타', lat: 52.034, lon: 113.499 },
-        { country: '러시아', city: '울란우데', lat: 51.833, lon: 107.584 },
-        { country: '러시아', city: '브라츠크', lat: 56.151, lon: 101.634 },
-        { country: '러시아', city: '보고차니', lat: 58.381, lon: 97.453 },
-        { country: '러시아', city: '예니세이스크', lat: 58.449, lon: 92.176 },
-        { country: '러시아', city: '니즈네바르톱스크', lat: 60.939, lon: 76.569 },
-        { country: '러시아', city: '노야브리스크', lat: 63.201, lon: 75.451 },
-        { country: '러시아', city: '냐간', lat: 62.140, lon: 65.394 },
-        { country: '러시아', city: '우흐타', lat: 63.567, lon: 53.683 },
-        { country: '러시아', city: '코틀라스', lat: 61.252, lon: 46.649 },
-        { country: '러시아', city: '플레세츠크', lat: 62.708, lon: 40.292 },
-        { country: '러시아', city: '소르타발라', lat: 61.704, lon: 30.691 },
-        { country: '핀란드', city: '헬싱키', lat: 60.170, lon: 24.938 },
-        { country: '에스토니아', city: '합살루', lat: 58.944, lon: 23.541 },
-        { country: '스웨덴', city: '비스뷔', lat: 57.635, lon: 18.294 },
-        { country: '덴마크', city: '뉘쾨빙팔스테르', lat: 54.769, lon: 11.875 },
-        { country: '독일', city: '뤼베크', lat: 53.867, lon: 10.687 },
-        { country: '독일', city: '뮌스터', lat: 51.961, lon: 7.626 },
-        { country: '독일', city: '뒤셀도르프', lat: 51.228, lon: 6.773 },
-        { country: '벨기에', city: '리에주', lat: 50.633, lon: 5.567 },
-        { country: '프랑스', city: '랭스', lat: 49.258, lon: 4.031 },
+        { country: '중국', city: '옌타이', lat: 37.464, lon: 121.448 },
+        { country: '중국', city: '톈진', lat: 39.084, lon: 117.201 },
+        { country: '중국', city: '타이위안', lat: 37.871, lon: 112.548 },
+        { country: '중국', city: '위린', lat: 38.285, lon: 109.734 },
+        { country: '중국', city: '인촨', lat: 38.487, lon: 106.231 },
+        { country: '중국', city: '주취안', lat: 39.733, lon: 98.494 },
+        { country: '중국', city: '하미', lat: 42.819, lon: 93.516 },
+        { country: '중국', city: '우루무치', lat: 43.826, lon: 87.617 },
+        { country: '중국', city: '타청', lat: 46.746, lon: 82.978 },
+        { country: '카자흐스탄', city: '발하슈', lat: 46.844, lon: 74.980 },
+        { country: '카자흐스탄', city: '제즈카즈간', lat: 47.783, lon: 67.700 },
+        { country: '카자흐스탄', city: '아랄', lat: 46.800, lon: 61.667 },
+        { country: '카자흐스탄', city: '베이네우', lat: 45.321, lon: 55.200 },
+        { country: '카자흐스탄', city: '악타우', lat: 43.653, lon: 51.160 },
+        { country: '아제르바이잔', city: '바쿠', lat: 40.409, lon: 49.868 },
+        { country: '조지아', city: '트빌리시', lat: 41.716, lon: 44.783 },
+        { country: '조지아', city: '쿠타이시', lat: 42.267, lon: 42.694 },
+        { country: '튀르키예', city: '삼순', lat: 41.286, lon: 36.330 },
+        { country: '불가리아', city: '바르나', lat: 43.214, lon: 27.915 },
+        { country: '루마니아', city: '부쿠레슈티', lat: 44.427, lon: 26.103 },
+        { country: '루마니아', city: '클루지나포카', lat: 46.771, lon: 23.624 },
+        { country: '헝가리', city: '부다페스트', lat: 47.498, lon: 19.040 },
+        { country: '오스트리아', city: '빈', lat: 48.208, lon: 16.374 },
+        { country: '독일', city: '뉘른베르크', lat: 49.452, lon: 11.077 },
+        { country: '독일', city: '프랑크푸르트', lat: 50.110, lon: 8.682 },
+        { country: '룩셈부르크', city: '룩셈부르크', lat: 49.612, lon: 6.132 },
         { country: '프랑스', city: '파리', lat: 49.0097, lon: 2.5479 }
       ]);
       const RAD = Math.PI / 180;
@@ -1049,6 +1087,27 @@
         const deltaLambda = (b.lon - a.lon) * RAD;
         const haversine = Math.sin(deltaPhi / 2) ** 2 + Math.cos(phi1) * Math.cos(phi2) * Math.sin(deltaLambda / 2) ** 2;
         return 6371.0088 * 2 * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
+      }
+
+      const ROUTE_LEGS = Object.freeze(ROUTE_WAYPOINTS.slice(0, -1).map((start, index) => Object.freeze({
+        start,
+        end: ROUTE_WAYPOINTS[index + 1],
+        distance: distanceKm(start, ROUTE_WAYPOINTS[index + 1])
+      })));
+      const ROUTE_DISTANCE_KM = ROUTE_LEGS.reduce((total, leg) => total + leg.distance, 0);
+
+      // Time progress is mapped to cumulative route distance. Within each leg,
+      // slerp follows that leg's great-circle arc on the sphere.
+      function routePointAt(progress) {
+        const target = clamp(progress, 0, 1) * ROUTE_DISTANCE_KM;
+        let covered = 0;
+        for (const leg of ROUTE_LEGS) {
+          if (target <= covered + leg.distance) {
+            return slerp(leg.start, leg.end, (target - covered) / leg.distance);
+          }
+          covered += leg.distance;
+        }
+        return { lat: CDG.lat, lon: CDG.lon };
       }
 
       function nearestRouteCity(point) {
@@ -1166,14 +1225,14 @@
         LAND.forEach((polygon) => landLayer.append(svgElement('path', { class: 'land', d: pathFromGeo(polygon, true) })));
 
         const routePoints = [];
-        for (let i = 0; i <= 240; i += 1) routePoints.push(slerp(ICN, CDG, i / 240));
+        for (let i = 0; i <= 360; i += 1) routePoints.push(routePointAt(i / 360));
         const routeD = pathFromGeo(routePoints);
         $('routeBase').setAttribute('d', routeD);
         $('routeFlown').setAttribute('d', routeD);
 
         const cities = [
-          { ...ICN, code: 'ICN', anchor: 'start', dx: 13, dy: -13 },
-          { ...CDG, code: 'CDG', anchor: 'end', dx: -13, dy: -13 }
+          { ...ICN, code: 'ICN', anchor: 'end', dx: -13, dy: -13 },
+          { ...CDG, code: 'CDG', anchor: 'start', dx: 13, dy: -13 }
         ];
         const cityLayer = $('cityLayer');
         cities.forEach((city) => {
@@ -1223,14 +1282,13 @@
 
       function headingAt(progress) {
         const epsilon = 0.0002;
-        const before = project(slerp(ICN, CDG, clamp(progress - epsilon, 0, 1)));
-        const after = project(slerp(ICN, CDG, clamp(progress + epsilon, 0, 1)));
+        const before = project(routePointAt(clamp(progress - epsilon, 0, 1)));
+        const after = project(routePointAt(clamp(progress + epsilon, 0, 1)));
         return Math.atan2(after.y - before.y, after.x - before.x) * DEG;
       }
 
       let mode = 'device';
       let simulatedMs = DEPARTURE_MS;
-      let routeLength = 0;
       let offlineReady = false;
 
       function setOfflineUI(state, title, detail) {
@@ -1304,7 +1362,7 @@
 
       function render(timeMs = effectiveTime()) {
         const progress = progressAt(timeMs);
-        const point = slerp(ICN, CDG, progress);
+        const point = routePointAt(progress);
         const location = nearestRouteCity(point);
         const projected = project(point);
         const heading = headingAt(progress);
@@ -1328,10 +1386,7 @@
         $('headingReadout').textContent = `${Math.round((heading + 360) % 360).toString().padStart(3, '0')}° MAP`;
         $('planeGroup').setAttribute('transform', `translate(${projected.x.toFixed(2)} ${projected.y.toFixed(2)}) rotate(${heading.toFixed(2)})`);
 
-        if (routeLength) {
-          const flown = Math.max(0, routeLength * progress);
-          $('routeFlown').style.strokeDasharray = `${flown} ${routeLength + 1}`;
-        }
+        $('routeFlown').setAttribute('stroke-dasharray', `${progress.toFixed(6)} 1`);
 
         $('statusChip').dataset.phase = phase;
         if (before) {
@@ -1396,12 +1451,16 @@
         const tests = [];
         const test = (name, condition) => tests.push({ name, pass: Boolean(condition) });
         const near = (actual, expected, tolerance = 1e-6) => Math.abs(actual - expected) <= tolerance;
-        const midpoint = slerp(ICN, CDG, .5);
-        const start = slerp(ICN, CDG, 0);
-        const end = slerp(ICN, CDG, 1);
+        const quarter = routePointAt(.25);
+        const midpoint = routePointAt(.5);
+        const threeQuarter = routePointAt(.75);
+        const start = routePointAt(0);
+        const end = routePointAt(1);
         const startLocation = nearestRouteCity(start);
         const midLocation = nearestRouteCity(midpoint);
         const endLocation = nearestRouteCity(end);
+        const avoidsDprk = Array.from({ length: 501 }, (_, index) => routePointAt(index / 500))
+          .every((point) => point.lon < 124 || point.lat < 38);
 
         test('UTC departure boundary', DEPARTURE_MS === 1790989800000);
         test('UTC arrival boundary', ARRIVAL_MS === 1791043800000);
@@ -1414,11 +1473,15 @@
         test('100% progress', progressAt(ARRIVAL_MS) === 1);
         test('after progress', progressAt(ARRIVAL_MS + 1) === 1);
         test('start coordinate', near(start.lat, 37.4602) && near(start.lon, 126.4407));
-        test('mid coordinate', near(midpoint.lat, 63.0647049) && near(midpoint.lon, 74.6108500));
+        test('25% route coordinate', near(quarter.lat, 42.1749592) && near(quarter.lon, 97.9749677));
+        test('mid coordinate', near(midpoint.lat, 47.3998615) && near(midpoint.lon, 65.7703845));
+        test('75% route coordinate', near(threeQuarter.lat, 42.1601593) && near(threeQuarter.lon, 34.9319996));
         test('end coordinate', near(end.lat, 49.0097) && near(end.lon, 2.5479));
         test('start location', startLocation.country === '대한민국' && startLocation.city === '인천');
-        test('mid location', midLocation.country === '러시아' && midLocation.city === '노야브리스크');
+        test('mid location', midLocation.country === '카자흐스탄' && midLocation.city === '제즈카즈간');
         test('end location', endLocation.country === '프랑스' && endLocation.city === '파리');
+        test('North Korea avoidance corridor', avoidsDprk);
+        test('historical route distance', ROUTE_DISTANCE_KM > 10500 && ROUTE_DISTANCE_KM < 10750);
         test('date-line split', splitAntimeridian([{ lat: 10, lon: 170 }, { lat: 12, lon: -170 }]).length === 2);
         test('Seoul schedule', zonedParts(DEPARTURE_MS, 'Asia/Seoul').time === '10:10:00');
         test('Paris schedule', zonedParts(ARRIVAL_MS, 'Europe/Paris').time === '18:10:00');
@@ -1434,7 +1497,6 @@
 
       function initialize() {
         drawMap();
-        routeLength = $('routeFlown').getTotalLength();
         $('timeSlider').min = String(DEPARTURE_MS - 60 * 60 * 1000);
         $('timeSlider').max = String(ARRIVAL_MS + 60 * 60 * 1000);
         $('timeSlider').value = String(DEPARTURE_MS);
@@ -1455,8 +1517,8 @@
         window.setInterval(() => render(), 1000);
 
         window.__flightTracker = Object.freeze({
-          constants: Object.freeze({ DEPARTURE_MS, ARRIVAL_MS, DURATION_MS, ICN, CDG }),
-          slerp, project, splitAntimeridian, progressAt, nearestRouteCity, render,
+          constants: Object.freeze({ DEPARTURE_MS, ARRIVAL_MS, DURATION_MS, ICN, CDG, ROUTE_DISTANCE_KM, ROUTE_WAYPOINTS }),
+          slerp, routePointAt, project, splitAntimeridian, progressAt, nearestRouteCity, render,
           usePreset, setupOfflineApp,
           getState: () => ({ mode, timeMs: effectiveTime(), progress: progressAt(effectiveTime()) })
         });
