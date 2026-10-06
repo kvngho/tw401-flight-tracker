@@ -1,0 +1,41 @@
+name: TW402 offline browser checks
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tw402/**'
+      - 'tests/**'
+      - '.github/workflows/tw402-checks.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run dependency-free date, route, UI and service-worker tests
+        run: |
+          node tests/verify-tw402.cjs
+          node tests/verify-tw402-sw.cjs
+      - name: Install pinned Playwright and Chromium
+        run: |
+          npm install --no-save --prefix /tmp/tw402-qa playwright@1.62.1
+          /tmp/tw402-qa/node_modules/.bin/playwright install --with-deps chromium
+          sudo apt-get install -y fonts-noto-cjk
+      - name: Verify mobile, cached reload, app reopen and isolated outbound app
+        env:
+          NODE_PATH: /tmp/tw402-qa/node_modules
+          LIVE_BASE_URL: https://kvngho.github.io/tw401-flight-tracker/
+        run: node tests/browser-tw402.cjs
+      - name: Save screenshots and browser results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tw402-browser-results
+          path: artifacts/
+          retention-days: 7

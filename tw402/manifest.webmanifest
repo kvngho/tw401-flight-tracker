@@ -1,0 +1,35 @@
+{
+  "id": "./",
+  "name": "TRINITY TW402 · Paris to Seoul",
+  "short_name": "TW402 귀국",
+  "description": "2026.10.10 파리에서 인천까지 · 12시간 10분 · 오프라인 예정 시각 기반 참고 지도",
+  "lang": "ko-KR",
+  "dir": "ltr",
+  "start_url": "./TW402-flight-tracker.html?source=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": [
+    "standalone"
+  ],
+  "orientation": "any",
+  "background_color": "#07111f",
+  "theme_color": "#07111f",
+  "categories": [
+    "travel",
+    "utilities"
+  ],
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="gold" x1="1.80561" y1="36.5568" x2="21.8263" y2="17.94" gradientUnits="userSpaceOnUse"><stop offset=".01" stop-color="#F2E9D2"/><stop offset=".5" stop-color="#E7D5A9"/><stop offset=".99" stop-color="#C1B494"/></linearGradient>
+    <linearGradient id="rose" x1="16.2129" y1="35.2252" x2="8.77548" y2="18.6626" gradientUnits="userSpaceOnUse"><stop stop-color="#E2C7B5"/><stop offset=".52" stop-color="#D7A79B"/><stop offset="1" stop-color="#C69186"/></linearGradient>
+    <linearGradient id="silver" x1="8.21658" y1="-8.60039" x2="17.7908" y2="11.6371" gradientUnits="userSpaceOnUse"><stop stop-color="#C6C8C8"/><stop offset=".34" stop-color="#CFD0D0"/><stop offset=".89" stop-color="#E8E7E7"/><stop offset="1" stop-color="#EFEDED"/></linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="#F5F2EB"/>
+  <rect x="12" y="12" width="488" height="488" rx="100" fill="none" stroke="#D7D0C3" stroke-width="4"/>
+  <g transform="translate(84 56) scale(12)">
+    <path d="M15.0547 33.1659L28.6547 9.60449L22.0637 10.3684C19.2973 10.6884 17.1244 12.8922 16.8405 15.6639L15.0547 33.1659Z" fill="url(#gold)"/>
+    <path d="M13.5961 33.1659L-0.00390625 9.60449L6.58708 10.3684C9.35354 10.6884 11.5265 12.8922 11.8103 15.6639L13.5961 33.1659Z" fill="url(#rose)"/>
+    <path d="M16.0153 9.25257L26.7508 4.31836H1.9043L12.6347 9.25257C13.7082 9.74805 14.9418 9.74805 16.0101 9.25257H16.0153Z" fill="url(#silver)"/>
+  </g>
+</svg>

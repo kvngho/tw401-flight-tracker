@@ -1,0 +1,2037 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="TRINITY TW402">
+  <meta name="theme-color" content="#07111f">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; img-src 'self' data:; font-src 'none'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="apple-touch-icon" href="./apple-touch-icon.png">
+  <link rel="icon" href="data:,">
+  <title>TRINITY AIRWAYS TW402 · 오프라인 비행 트래커</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f7fbff;
+      --muted: #8da2b8;
+      --subtle: #748ba1;
+      --panel: rgba(13, 29, 47, .84);
+      --panel-solid: #0d1d2f;
+      --line: rgba(170, 207, 231, .14);
+      --cyan: #56d6ef;
+      --cyan-soft: #9ceeff;
+      --red: #ef455a;
+      --gold: #ffc56e;
+      --green: #5ae0b4;
+      --radius: 22px;
+      --shadow: 0 18px 55px rgba(0, 0, 0, .33);
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      min-width: 320px;
+      background: #050d17;
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100svh;
+      overflow-x: hidden;
+      color: var(--ink);
+      background:
+        radial-gradient(120% 55% at 88% -4%, rgba(33, 111, 145, .27), transparent 57%),
+        radial-gradient(80% 35% at 3% 19%, rgba(239, 69, 90, .10), transparent 64%),
+        linear-gradient(180deg, #07111f 0%, #06101c 55%, #050c15 100%);
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: .32;
+      background-image: linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px);
+      background-size: 100% 6px;
+      mask-image: linear-gradient(to bottom, #000, transparent 75%);
+    }
+
+    button, input { font: inherit; }
+
+    button {
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    .app {
+      position: relative;
+      width: min(100%, 470px);
+      min-height: 100svh;
+      margin: 0 auto;
+      padding: max(18px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(28px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+    }
+
+    .masthead {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 44px;
+      margin: 0 2px 14px;
+    }
+
+    .brand { display: flex; align-items: center; min-width: 0; }
+
+    .trinity-lockup {
+      display: grid;
+      place-items: center;
+      width: 150px;
+      height: 38px;
+      padding: 4px 8px;
+      flex: 0 0 auto;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.7);
+      border-radius: 11px;
+      background: #f5f2eb;
+      box-shadow: 0 8px 24px rgba(0,0,0,.22), inset 0 1px 0 white;
+    }
+
+    .trinity-logo { display: block; width: 100%; height: auto; }
+
+    .offline-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 28px;
+      padding: 0 10px;
+      border: 1px solid rgba(90,224,180,.25);
+      border-radius: 999px;
+      color: #a7efd7;
+      background: rgba(31,123,99,.11);
+      font-size: 9px;
+      font-weight: 780;
+      letter-spacing: .1em;
+      white-space: nowrap;
+    }
+
+    .offline-pill::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 10px rgba(90,224,180,.72);
+    }
+
+    .offline-pill[data-state="checking"] {
+      color: var(--gold);
+      border-color: rgba(255,197,110,.25);
+      background: rgba(255,197,110,.08);
+    }
+
+    .offline-pill[data-state="checking"]::before { background: var(--gold); }
+
+    .offline-pill[data-state="error"] {
+      color: #ff9daa;
+      border-color: rgba(239,69,90,.3);
+      background: rgba(239,69,90,.08);
+    }
+
+    .offline-pill[data-state="error"]::before { background: var(--red); }
+
+    .panel {
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(145deg, rgba(16,35,56,.93), rgba(8,22,37,.89));
+      box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,.025);
+    }
+
+    .hero {
+      padding: 20px 18px 18px;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      top: -112px;
+      right: -65px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(86,214,239,.18), transparent 67%);
+      pointer-events: none;
+    }
+
+    .eyebrow-row {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .flight-number {
+      margin: 0;
+      font-size: clamp(30px, 9vw, 38px);
+      line-height: 1;
+      font-weight: 820;
+      letter-spacing: -.055em;
+    }
+
+    .flight-meta {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .035em;
+    }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 30px;
+      padding: 0 11px;
+      border: 1px solid rgba(255,197,110,.23);
+      border-radius: 999px;
+      color: var(--gold);
+      background: rgba(255,197,110,.08);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      white-space: nowrap;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 10px currentColor;
+    }
+
+    .status-chip[data-phase="inflight"] {
+      color: var(--cyan-soft);
+      border-color: rgba(86,214,239,.25);
+      background: rgba(86,214,239,.08);
+    }
+
+    .status-chip[data-phase="arrived"] {
+      color: var(--green);
+      border-color: rgba(90,224,180,.24);
+      background: rgba(90,224,180,.08);
+    }
+
+    .route-summary {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      align-items: center;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    .airport:last-child { text-align: right; }
+    .airport-code { font-size: 27px; font-weight: 790; letter-spacing: -.04em; }
+    .airport-city { margin-top: 3px; color: var(--muted); font-size: 10px; }
+    .airport-time { margin-top: 8px; color: var(--ink); font-size: 13px; font-variant-numeric: tabular-nums; }
+
+    .route-arrow {
+      display: flex;
+      align-items: center;
+      width: clamp(50px, 18vw, 78px);
+      color: var(--subtle);
+    }
+
+    .route-arrow::before, .route-arrow::after { content: ""; display: block; }
+    .route-arrow::before { width: 100%; height: 1px; background: linear-gradient(90deg, transparent, currentColor 22%, currentColor); }
+    .route-arrow::after { width: 7px; height: 7px; border-top: 1px solid currentColor; border-right: 1px solid currentColor; transform: rotate(45deg); }
+
+    .progress-row {
+      display: grid;
+      grid-template-columns: 88px minmax(0, 1fr);
+      align-items: center;
+      gap: 18px;
+      margin-top: 22px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+    }
+
+    .progress-orb {
+      --progress-deg: 0deg;
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      background: conic-gradient(var(--cyan) var(--progress-deg), rgba(117,153,181,.13) 0);
+      box-shadow: 0 0 28px rgba(86,214,239,.08);
+    }
+
+    .progress-orb::before {
+      content: "";
+      position: absolute;
+      inset: 6px;
+      border-radius: 50%;
+      background: #0b1b2b;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.035);
+    }
+
+    .progress-value {
+      position: relative;
+      font-size: 19px;
+      font-weight: 820;
+      letter-spacing: -.05em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .progress-value small { color: var(--muted); font-size: 10px; letter-spacing: 0; }
+
+    .phase-kicker { color: var(--cyan-soft); font-size: 10px; font-weight: 800; letter-spacing: .15em; }
+    .phase-title { margin-top: 5px; font-size: 19px; font-weight: 750; letter-spacing: -.025em; }
+    .phase-detail { margin-top: 6px; color: var(--muted); font-size: 11px; line-height: 1.55; font-variant-numeric: tabular-nums; }
+
+    .section-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 22px 3px 10px;
+      color: #b8c9d9;
+      font-size: 10px;
+      font-weight: 790;
+      letter-spacing: .14em;
+    }
+
+    .section-label span:last-child { color: var(--subtle); font-size: 9px; letter-spacing: .08em; }
+
+    .map-panel { padding: 0; }
+
+    .map-head {
+      position: absolute;
+      z-index: 3;
+      inset: 14px 15px auto;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      pointer-events: none;
+    }
+
+    .map-title { font-size: 11px; font-weight: 760; letter-spacing: .04em; }
+    .map-caption { margin-top: 3px; color: var(--muted); font-size: 9px; }
+
+    .map-live {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 24px;
+      padding: 0 8px;
+      border: 1px solid rgba(86,214,239,.17);
+      border-radius: 8px;
+      color: var(--cyan-soft);
+      background: rgba(5,15,25,.5);
+      font-size: 8px;
+      font-weight: 800;
+      letter-spacing: .1em;
+      backdrop-filter: blur(8px);
+    }
+
+    .map-live::before {
+      content: "";
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--cyan);
+    }
+
+    .world-map {
+      display: block;
+      width: 100%;
+      height: auto;
+      min-height: 210px;
+      background:
+        radial-gradient(70% 85% at 64% 45%, rgba(25,74,97,.19), transparent 70%),
+        linear-gradient(180deg, #071522, #07121e);
+    }
+
+    .ocean-frame { fill: transparent; stroke: rgba(151,195,220,.08); stroke-width: 1.5; }
+    .graticule { fill: none; stroke: rgba(137,178,203,.085); stroke-width: 1; vector-effect: non-scaling-stroke; }
+    .land { fill: #142e43; stroke: rgba(111,170,196,.18); stroke-width: 1.4; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+    .route-base { fill: none; stroke: rgba(151,207,229,.3); stroke-width: 2.4; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+    .route-flown { fill: none; stroke: url(#routeGradient); stroke-width: 4; stroke-linecap: round; filter: url(#routeGlow); vector-effect: non-scaling-stroke; }
+    .city-ring { fill: #071522; stroke: rgba(202,237,249,.75); stroke-width: 2; vector-effect: non-scaling-stroke; }
+    .city-core { fill: white; }
+    .map-label { fill: #b8d1df; font-size: 19px; font-weight: 800; letter-spacing: .05em; paint-order: stroke; stroke: #071522; stroke-width: 7px; stroke-linejoin: round; }
+    .map-label.sub { fill: #718ca1; font-size: 13px; font-weight: 600; }
+    .plane-halo { fill: rgba(86,214,239,.16); stroke: rgba(86,214,239,.35); stroke-width: 1; }
+    .plane-mark { fill: #f6fcff; filter: url(#planeGlow); }
+
+    #planeGroup { transform-box: fill-box; transform-origin: center; }
+
+    .map-readout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+      align-items: center;
+      gap: 12px;
+      min-height: 60px;
+      padding: 8px 15px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      background: rgba(5,15,25,.54);
+      font-size: 9px;
+    }
+
+    .map-readout strong { display: block; margin-top: 3px; color: #d7e9f3; font-size: 10px; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .map-readout .location-name { color: var(--cyan-soft); font-size: 13px; }
+    .map-readout small { display: block; margin-top: 3px; color: var(--subtle); font-size: 8px; font-weight: 600; }
+    .map-readout small b { color: #a9c0cf; font-weight: 720; font-variant-numeric: tabular-nums; }
+    .map-readout > div:last-child { text-align: right; }
+
+    .instrument-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+    }
+
+    .instrument {
+      min-width: 0;
+      min-height: 86px;
+      padding: 13px 14px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(11,27,44,.74);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.018);
+    }
+
+    .instrument-label { color: var(--muted); font-size: 9px; font-weight: 750; letter-spacing: .1em; }
+    .instrument-value { margin-top: 9px; overflow-wrap: anywhere; color: #f4fbff; font-size: 16px; font-weight: 730; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+    .instrument-value.compact { font-size: 14px; }
+    .instrument-sub { margin-top: 5px; color: var(--subtle); font-size: 9px; line-height: 1.35; }
+
+    .clock-panel { padding: 4px 16px; }
+
+    .clock-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 12px;
+      min-height: 80px;
+    }
+
+    .clock:last-child { text-align: right; }
+    .clock-zone { color: var(--muted); font-size: 9px; font-weight: 750; letter-spacing: .1em; }
+    .clock-time { margin-top: 6px; font-size: 22px; font-weight: 770; letter-spacing: -.025em; font-variant-numeric: tabular-nums; }
+    .clock-date { margin-top: 4px; color: var(--subtle); font-size: 9px; }
+
+    .clock-divider { width: 1px; height: 38px; background: var(--line); }
+
+    details.simulator {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(10,25,41,.66);
+    }
+
+    details.simulator > summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 52px;
+      padding: 0 15px;
+      cursor: pointer;
+      list-style: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    details.simulator > summary::-webkit-details-marker { display: none; }
+
+    .summary-title { display: flex; align-items: center; gap: 9px; font-size: 11px; font-weight: 740; }
+    .summary-icon { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 8px; color: var(--cyan-soft); background: rgba(86,214,239,.09); font-size: 14px; }
+    .summary-state { color: var(--muted); font-size: 9px; font-weight: 650; }
+
+    .chevron {
+      width: 8px;
+      height: 8px;
+      margin-left: 8px;
+      border-right: 1.5px solid var(--muted);
+      border-bottom: 1.5px solid var(--muted);
+      transform: rotate(45deg);
+      transition: transform .2s ease;
+    }
+
+    details[open] .chevron { transform: rotate(225deg); }
+
+    .sim-body { padding: 0 14px 15px; border-top: 1px solid var(--line); }
+    .sim-readout { padding: 13px 1px 10px; color: #d6e6ef; font-size: 11px; font-weight: 650; font-variant-numeric: tabular-nums; }
+
+    .preset-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 7px;
+    }
+
+    .preset {
+      min-width: 0;
+      min-height: 44px;
+      padding: 0 6px;
+      border: 1px solid rgba(156,190,211,.14);
+      border-radius: 11px;
+      color: #a9bdcc;
+      background: rgba(255,255,255,.025);
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .preset[aria-pressed="true"] {
+      color: #e8fbff;
+      border-color: rgba(86,214,239,.45);
+      background: rgba(86,214,239,.12);
+      box-shadow: inset 0 0 0 1px rgba(86,214,239,.08);
+    }
+
+    .preset:focus-visible, summary:focus-visible, input:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+
+    .slider-wrap { padding-top: 15px; }
+
+    input[type="range"] {
+      width: 100%;
+      height: 44px;
+      margin: 0;
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      background: transparent;
+    }
+
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 4px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(86,214,239,.65), rgba(86,214,239,.18));
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      width: 22px;
+      height: 22px;
+      margin-top: -9px;
+      border: 3px solid #0b1b2b;
+      border-radius: 50%;
+      appearance: none;
+      -webkit-appearance: none;
+      background: var(--cyan-soft);
+      box-shadow: 0 0 0 1px rgba(156,238,255,.75), 0 3px 12px rgba(0,0,0,.4);
+    }
+
+    input[type="range"]::-moz-range-track { height: 4px; border: 0; border-radius: 999px; background: rgba(86,214,239,.3); }
+    input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border: 3px solid #0b1b2b; border-radius: 50%; background: var(--cyan-soft); }
+
+    .slider-ends { display: flex; justify-content: space-between; margin-top: -5px; color: var(--subtle); font-size: 9px; }
+
+    details.install-guide {
+      overflow: hidden;
+      border: 1px solid rgba(90,224,180,.18);
+      border-radius: 18px;
+      background: rgba(10,31,40,.7);
+    }
+
+    details.install-guide > summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 52px;
+      padding: 0 15px;
+      cursor: pointer;
+      list-style: none;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    details.install-guide > summary::-webkit-details-marker { display: none; }
+    details.install-guide[open] .chevron { transform: rotate(225deg); }
+
+    .install-body { padding: 0 15px 15px; border-top: 1px solid var(--line); }
+
+    .install-status {
+      display: grid;
+      grid-template-columns: 26px minmax(0, 1fr);
+      gap: 10px;
+      align-items: center;
+      margin: 13px 0 11px;
+      color: #d8e8ef;
+      font-size: 11px;
+      font-weight: 730;
+    }
+
+    .install-status::before {
+      content: "✓";
+      display: grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      color: var(--green);
+      background: rgba(90,224,180,.1);
+    }
+
+    .install-status[data-state="checking"]::before { content: "…"; color: var(--gold); background: rgba(255,197,110,.1); }
+    .install-status[data-state="error"]::before { content: "!"; color: var(--red); background: rgba(239,69,90,.1); }
+    .install-status small { display: block; margin-top: 3px; color: var(--muted); font-size: 9px; font-weight: 560; line-height: 1.45; }
+
+    .install-steps {
+      margin: 0;
+      padding: 0 0 0 22px;
+      color: #aebfcb;
+      font-size: 10px;
+      line-height: 1.65;
+    }
+
+    .install-steps li + li { margin-top: 3px; }
+    .install-steps strong { color: #ecf6fa; font-weight: 690; }
+
+    .notice {
+      display: flex;
+      gap: 11px;
+      margin-top: 18px;
+      padding: 14px;
+      border: 1px solid rgba(255,197,110,.14);
+      border-radius: 16px;
+      color: #aebdca;
+      background: rgba(255,197,110,.045);
+      font-size: 10px;
+      line-height: 1.55;
+    }
+
+    .notice-icon {
+      display: grid;
+      place-items: center;
+      width: 22px;
+      height: 22px;
+      flex: 0 0 auto;
+      border: 1px solid rgba(255,197,110,.28);
+      border-radius: 50%;
+      color: var(--gold);
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .notice strong { color: #eef5f8; font-weight: 690; }
+    .notice a, .source-links a { color: var(--cyan-soft); text-underline-offset: 3px; }
+    .baggage-note { margin-top: 6px; color: var(--subtle); font-size: 10px; line-height: 1.5; }
+    .airport-date { margin-top: 5px; color: var(--muted); font-size: 10px; line-height: 1.6; }
+    .airport-date b { color: var(--gold); font-weight: 750; }
+    .route-gap-mask { fill: none; stroke: #0b1b2d; stroke-width: 6; vector-effect: non-scaling-stroke; }
+    .route-gap { fill: none; stroke: var(--gold); stroke-width: 2; stroke-dasharray: 3 4; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+    .map-legend { display: flex; flex-wrap: wrap; gap: 4px 12px; padding: 0 14px 10px; color: var(--muted); font-size: 9px; line-height: 1.6; }
+    .map-legend span { display: inline-flex; align-items: center; gap: 5px; }
+    .legend-line { width: 18px; border-top: 2px solid var(--cyan); }
+    .legend-gap { border-top: 2px dashed var(--gold); }
+    .source-links { margin-top: 16px; border-top: 1px solid var(--line); padding-top: 12px; color: var(--muted); font-size: 11px; line-height: 1.8; }
+    .source-links a { display: inline-block; min-height: 44px; padding-block: 12px; }
+    .flight-meta { line-height: 1.6; }
+    .instrument-value small { color: var(--gold); font-size: 10px; }
+
+    .self-test {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 46px;
+      margin: 10px 3px 0;
+      color: var(--subtle);
+      font-size: 8px;
+      letter-spacing: .08em;
+    }
+
+    .test-result { display: inline-flex; align-items: center; gap: 6px; color: var(--green); font-weight: 780; }
+    .test-result::before { content: "✓"; display: grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; background: rgba(90,224,180,.1); }
+    .test-result.failed { color: var(--red); }
+    .test-result.failed::before { content: "!"; background: rgba(239,69,90,.1); }
+
+    .footer-status { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+    .footer-signature { color: #6f8798; font-weight: 650; letter-spacing: .04em; }
+
+    .footer-line { color: #40566a; text-align: right; }
+
+    .is-simulating .map-live { color: var(--gold); border-color: rgba(255,197,110,.2); }
+    .is-simulating .map-live::before { background: var(--gold); }
+
+    @media (max-width: 359px) {
+      .app { padding-inline: 12px; }
+      .hero { padding-inline: 15px; }
+      .progress-row { grid-template-columns: 78px minmax(0, 1fr); gap: 13px; }
+      .progress-orb { width: 78px; height: 78px; }
+      .instrument { padding-inline: 11px; }
+      .instrument-value { font-size: 14px; }
+      .flight-meta { font-size: 10px; }
+    }
+
+    @media (min-width: 431px) {
+      .app { padding-inline: 20px; }
+      .world-map { min-height: 226px; }
+    }
+
+    /* iPhone landscape: use the wide canvas as an actual flight deck. */
+    @media (orientation: landscape) and (min-width: 620px) {
+      .app {
+        width: 100%;
+        max-width: 1200px;
+        padding: max(10px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+        display: grid;
+        grid-template-columns: minmax(260px, .82fr) minmax(330px, 1.18fr);
+        grid-template-areas:
+          "masthead masthead"
+          "hero route-label"
+          "hero map"
+          "instrument-label instrument-label"
+          "instruments instruments"
+          "clock-label simulator-label"
+          "clock simulator"
+          "pwa-label pwa-label"
+          "pwa pwa"
+          "notice notice"
+          "footer footer";
+        column-gap: 12px;
+        row-gap: 0;
+      }
+
+      .masthead {
+        grid-area: masthead;
+        min-height: 38px;
+        margin-bottom: 8px;
+      }
+
+      .hero {
+        grid-area: hero;
+        align-self: stretch;
+        padding: 15px 16px 14px;
+      }
+
+      .flight-number { font-size: 31px; }
+      .flight-meta { margin-top: 6px; }
+      .route-summary { margin-top: 15px; }
+      .airport-code { font-size: 23px; }
+      .airport-time { margin-top: 5px; font-size: 12px; }
+      .route-arrow { width: clamp(38px, 7vw, 68px); }
+      .progress-row {
+        grid-template-columns: 72px minmax(0, 1fr);
+        gap: 13px;
+        margin-top: 14px;
+        padding-top: 12px;
+      }
+      .progress-orb { width: 72px; height: 72px; }
+      .progress-value { font-size: 16px; }
+      .phase-title { margin-top: 3px; font-size: 17px; }
+      .phase-detail { margin-top: 4px; font-size: 10px; }
+
+      .route-label { grid-area: route-label; align-self: end; }
+      .map-panel { grid-area: map; align-self: stretch; }
+      .world-map { min-height: 0; }
+      .instrument-label-row { grid-area: instrument-label; }
+      .instrument-grid {
+        grid-area: instruments;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+      .instrument { min-height: 76px; padding: 11px 13px; }
+      .instrument-value { margin-top: 6px; }
+      .instrument-sub { margin-top: 3px; }
+      .clock-label-row { grid-area: clock-label; }
+      .clock-panel { grid-area: clock; align-self: start; }
+      .simulator-label-row { grid-area: simulator-label; }
+      details.simulator { grid-area: simulator; align-self: start; }
+      .pwa-label-row { grid-area: pwa-label; }
+      details.install-guide { grid-area: pwa; }
+      .notice { grid-area: notice; }
+      .self-test { grid-area: footer; }
+
+      .section-label { margin-top: 14px; }
+      .route-label { margin-top: 0; }
+      .clock-row { min-height: 76px; }
+      .clock-time { font-size: 20px; }
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      .status-chip[data-phase="inflight"] .status-dot,
+      .is-live .map-live::before { animation: pulse 2s ease-in-out infinite; }
+      #planeGroup { transition: transform .65s cubic-bezier(.2,.7,.2,1); }
+      .progress-orb { transition: background .45s ease; }
+      .route-flown { transition: stroke-dasharray .5s ease; }
+      .panel { animation: reveal .5s both; }
+      .map-panel { animation-delay: .06s; }
+    }
+
+    @keyframes pulse { 50% { opacity: .45; box-shadow: 0 0 3px currentColor; } }
+    @keyframes reveal { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app is-live" id="app">
+    <header class="masthead">
+      <div class="brand" aria-label="트리니티항공">
+        <div class="trinity-lockup">
+          <svg class="trinity-logo" viewBox="0 0 156 38" role="img" aria-label="TRINITY AIRWAYS 로고">
+            <g clip-path="url(#trinityClip)">
+              <path d="M15.0547 33.1659L28.6547 9.60449L22.0637 10.3684C19.2973 10.6884 17.1244 12.8922 16.8405 15.6639L15.0547 33.1659Z" fill="url(#trinityGold)"/>
+              <path d="M13.5961 33.1659L-0.00390625 9.60449L6.58708 10.3684C9.35354 10.6884 11.5265 12.8922 11.8103 15.6639L13.5961 33.1659Z" fill="url(#trinityRose)"/>
+              <path d="M16.0153 9.25257L26.7508 4.31836H1.9043L12.6347 9.25257C13.7082 9.74805 14.9418 9.74805 16.0101 9.25257H16.0153Z" fill="url(#trinitySilver)"/>
+              <path d="M80.9484 27.1414H77.1445V8.50391H80.9484V27.1465V27.1414Z" fill="#686058"/>
+              <path d="M115.53 27.1413H111.727V8.5038H115.53V27.1464V27.1413Z" fill="#686058"/>
+              <path d="M103.473 27.1425L90.3268 14.1308H90.27C90.2958 15.2199 90.301 16.2212 90.3268 17.1399C90.3371 17.527 90.399 27.0496 90.399 27.0496H88.1797V8.37598H89.8365L103.018 21.3463H103.039C103.013 20.3451 102.993 19.4057 102.977 18.5386C102.977 18.1618 102.941 8.49985 102.941 8.49985H105.16V27.1425H103.467H103.473Z" fill="#686058"/>
+              <path d="M125.533 27.1414V10.4858L119.68 10.3981V8.50391H135.189V10.3413L129.336 10.4858V27.1414H125.533Z" fill="#686058"/>
+              <path d="M42.392 27.1414V10.4858L36.5391 10.3981V8.50391H52.0488V10.3413L46.1959 10.4858V27.1414H42.392Z" fill="#686058"/>
+              <path d="M154.131 8.5038H151.53L146.977 15.9103L142.213 8.5038H137.48L143.87 18.1709V27.1413H147.731V18.0212L148.133 17.4948L154.131 8.5038Z" fill="#686058"/>
+              <path d="M63.1563 19.6777C63.6879 20.6945 67.4196 26.7074 67.6983 27.0893C67.7086 27.1048 67.7241 27.1255 67.7344 27.141H72.2506C72.1938 27.1048 72.137 27.0687 72.0854 27.0274C71.7705 26.7952 71.4918 26.5216 71.2389 26.2429C70.4493 25.3655 66.8467 20.1216 66.4596 19.3629C67.3009 19.1409 67.7499 18.7642 68.457 18.1138C69.0763 17.5512 69.5305 16.8906 69.8196 16.1319C70.1086 15.3732 70.2583 14.6764 70.2583 13.8145C70.2583 12.999 70.1241 12.2661 69.8557 11.6003C69.5873 10.9396 69.1744 10.2686 68.617 9.81445C68.0596 9.36025 67.3576 9.00928 66.5163 8.75638C65.675 8.50864 64.6789 8.38477 63.5383 8.38477C63.2699 8.38477 62.2583 8.38477 61.9795 8.38993H57.0195V27.1358H60.8234V19.6829C61.546 19.6829 62.5783 19.6829 63.1512 19.6725L63.1563 19.6777ZM64.8544 10.7177C65.6699 11.079 66.3202 11.7706 66.6815 12.5809C67.5434 14.5319 66.7434 16.7874 64.6996 17.5306C64.1834 17.7164 63.6312 17.7938 63.0841 17.7938C62.3408 17.7938 61.3912 17.7835 60.8286 17.7732V10.377C62.186 10.4286 63.6157 10.1706 64.8596 10.7177H64.8544Z" fill="#686058"/>
+            </g>
+            <defs>
+              <linearGradient id="trinityGold" x1="1.80561" y1="36.5568" x2="21.8263" y2="17.94" gradientUnits="userSpaceOnUse"><stop offset=".01" stop-color="#F2E9D2"/><stop offset=".5" stop-color="#E7D5A9"/><stop offset=".99" stop-color="#C1B494"/></linearGradient>
+              <linearGradient id="trinityRose" x1="16.2129" y1="35.2252" x2="8.77548" y2="18.6626" gradientUnits="userSpaceOnUse"><stop stop-color="#E2C7B5"/><stop offset=".52" stop-color="#D7A79B"/><stop offset="1" stop-color="#C69186"/></linearGradient>
+              <linearGradient id="trinitySilver" x1="8.21658" y1="-8.60039" x2="17.7908" y2="11.6371" gradientUnits="userSpaceOnUse"><stop stop-color="#C6C8C8"/><stop offset=".34" stop-color="#CFD0D0"/><stop offset=".89" stop-color="#E8E7E7"/><stop offset="1" stop-color="#EFEDED"/></linearGradient>
+              <clipPath id="trinityClip"><rect width="156" height="38" fill="white"/></clipPath>
+            </defs>
+          </svg>
+        </div>
+      </div>
+      <div class="offline-pill" id="offlinePill" data-state="checking">오프라인 확인 중</div>
+    </header>
+
+    <section class="panel hero" aria-labelledby="flightTitle">
+      <div class="eyebrow-row">
+        <div>
+          <h1 class="flight-number" id="flightTitle">TW0402</h1>
+          <div class="flight-meta">2026.10.10 토 → 10.11 일 · 직항 · 12시간 10분</div>
+          <div class="baggage-note">위탁수하물 23kg · 예약 정보 기준</div>
+        </div>
+        <div class="status-chip" id="statusChip" data-phase="before">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span id="statusChipText">출발 전</span>
+        </div>
+      </div>
+
+      <div class="route-summary" aria-label="파리에서 인천까지, 다음 날 도착">
+        <div class="airport">
+          <div class="airport-code">CDG</div>
+          <div class="airport-city">파리 샤를드골</div>
+          <div class="airport-time">20:30 <span aria-label="중앙유럽 일광 절약 시간">CEST</span></div>
+          <div class="airport-date">10월 10일 · UTC+2</div>
+        </div>
+        <div class="route-arrow" aria-hidden="true"></div>
+        <div class="airport">
+          <div class="airport-code">ICN</div>
+          <div class="airport-city">서울 인천</div>
+          <div class="airport-time">15:40 <span aria-label="한국 표준시">KST</span></div>
+          <div class="airport-date">10월 11일 · UTC+9 <b>+1일</b></div>
+        </div>
+      </div>
+
+      <div class="progress-row">
+        <div class="progress-orb" id="progressOrb" role="progressbar" aria-label="전체 비행 진행률" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div class="progress-value"><span id="progressValue">0.0</span><small>%</small></div>
+        </div>
+        <div>
+          <div class="phase-kicker" id="phaseKicker">PRE-FLIGHT</div>
+          <div class="phase-title" id="phaseTitle">출발을 기다리는 중</div>
+          <div class="phase-detail" id="phaseDetail">예정 출발까지 계산 중</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-label route-label"><span>HISTORICAL ROUTE</span><span>참고 항로 · 실제 위치 아님</span></div>
+
+    <section class="panel map-panel" aria-labelledby="mapTitle">
+      <div class="map-head">
+        <div>
+          <div class="map-title" id="mapTitle">CDG → ICN</div>
+          <div class="map-caption">2026.10.04 TW402 관측 기록 참고</div>
+        </div>
+        <div class="map-live" id="mapMode">DEVICE TIME</div>
+      </div>
+      <svg class="world-map" id="worldMap" viewBox="470 25 375 170" role="img" aria-labelledby="svgTitle svgDesc">
+        <title id="svgTitle">파리에서 인천까지의 참고 항로 지도</title>
+        <desc id="svgDesc">2026년 10월 4일 파리 출발 TW402 관측 기록을 단순화한 참고 항로입니다. 금색 점선은 관측 공백과 공항 연결을 보간한 구간입니다. 예정 시각 기준 표시이며 실제 GPS나 실시간 운항 정보가 아닙니다.</desc>
+        <defs>
+          <linearGradient id="routeGradient" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#55d6ef"/>
+            <stop offset="1" stop-color="#d8f8ff"/>
+          </linearGradient>
+          <filter id="routeGlow" x="-20%" y="-50%" width="140%" height="200%">
+            <feGaussianBlur stdDeviation="4" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="planeGlow" x="-80%" y="-80%" width="260%" height="260%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="4" result="blur"/>
+            <feFlood flood-color="#56d6ef" flood-opacity=".8"/>
+            <feComposite in2="blur" operator="in"/>
+            <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <rect class="ocean-frame" x="478" y="33" width="359" height="154" rx="18"/>
+        <g id="graticuleLayer" aria-hidden="true"></g>
+        <g id="landLayer" aria-hidden="true"></g>
+        <g aria-hidden="true">
+          <path class="route-base" id="routeBase"/>
+          <path class="route-flown" id="routeFlown" pathLength="1" stroke-dasharray="0 1"/>
+        </g>
+        <g id="routeGapLayer" aria-hidden="true"></g>
+        <g id="cityLayer" aria-hidden="true"></g>
+        <g id="planeGroup" aria-hidden="true">
+          <circle class="plane-halo" r="25"/>
+          <path class="plane-mark" d="M-20,-4 L-5,-4 L4,-18 L10,-18 L6,-4 L19,-4 C23,-4 25,-2 27,0 C25,2 23,4 19,4 L6,4 L10,18 L4,18 L-5,4 L-20,4 L-25,11 L-29,11 L-27,0 L-29,-11 L-25,-11 Z" transform="scale(.72)"/>
+        </g>
+      </svg>
+      <div class="map-legend"><span><i class="legend-line"></i>과거 관측 연결</span><span><i class="legend-line legend-gap"></i>관측 공백·공항 연결 보간</span></div>
+      <div class="map-readout">
+        <div>항로상 참고 지역<strong class="location-name" id="locationReadout">프랑스 · 파리</strong><small id="locationDetail">가까운 주요 도시 기준</small></div>
+        <div>시간 기반 참고 좌표<strong id="coordinateReadout">49.0097° N · 2.5479° E</strong><small>지도상 방향 · <b id="headingReadout">—</b></small></div>
+      </div>
+    </section>
+
+    <div class="section-label instrument-label-row"><span>FLIGHT INSTRUMENTS</span><span>예정 시각 기준</span></div>
+
+    <section class="instrument-grid" aria-label="비행 시간 계기">
+      <div class="instrument">
+        <div class="instrument-label">경과 시간</div>
+        <div class="instrument-value compact" id="elapsedValue">0시간 00분 00초</div>
+        <div class="instrument-sub">출발 이후</div>
+      </div>
+      <div class="instrument">
+        <div class="instrument-label">남은 시간</div>
+        <div class="instrument-value compact" id="remainingValue">12시간 10분 00초</div>
+        <div class="instrument-sub">도착까지</div>
+      </div>
+      <div class="instrument">
+        <div class="instrument-label">예정 출발</div>
+        <div class="instrument-value">20:30</div>
+        <div class="instrument-sub">10월 10일 · 파리 CEST</div>
+      </div>
+      <div class="instrument">
+        <div class="instrument-label">예정 도착</div>
+        <div class="instrument-value">15:40 <small>+1일</small></div>
+        <div class="instrument-sub">10월 11일 · 인천 KST</div>
+      </div>
+    </section>
+
+    <div class="section-label clock-label-row"><span>LOCAL TIME</span><span id="timeSourceLabel">기기 시각 기준</span></div>
+
+    <section class="panel clock-panel" aria-label="인천과 파리의 현지 시각">
+      <div class="clock-row">
+        <div class="clock">
+          <div class="clock-zone" id="parisZone">PARIS · UTC+2</div>
+          <div class="clock-time" id="parisTime">--:--:--</div>
+          <div class="clock-date" id="parisDate">—</div>
+        </div>
+        <div class="clock-divider" aria-hidden="true"></div>
+        <div class="clock">
+          <div class="clock-zone">SEOUL · UTC+9</div>
+          <div class="clock-time" id="seoulTime">--:--:--</div>
+          <div class="clock-date" id="seoulDate">—</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-label simulator-label-row"><span>TIME SIMULATOR</span><span>검증 · 데모</span></div>
+
+    <details class="simulator" id="simulator">
+      <summary>
+        <span class="summary-title"><span class="summary-icon" aria-hidden="true">◷</span>시간 시뮬레이션</span>
+        <span style="display:flex;align-items:center"><span class="summary-state" id="summaryState">기기 시각</span><span class="chevron" aria-hidden="true"></span></span>
+      </summary>
+      <div class="sim-body">
+        <div class="sim-readout" id="simReadout">실제 기기 시각을 사용 중입니다.</div>
+        <div class="preset-grid" role="group" aria-label="시간 프리셋">
+          <button class="preset" type="button" data-preset="device" aria-pressed="true">기기 시각</button>
+          <button class="preset" type="button" data-preset="before" aria-pressed="false">출발 전</button>
+          <button class="preset" type="button" data-preset="25" aria-pressed="false">25%</button>
+          <button class="preset" type="button" data-preset="50" aria-pressed="false">50%</button>
+          <button class="preset" type="button" data-preset="75" aria-pressed="false">75%</button>
+          <button class="preset" type="button" data-preset="after" aria-pressed="false">도착 후</button>
+        </div>
+        <div class="slider-wrap">
+          <label for="timeSlider" class="instrument-label">직접 이동</label>
+          <input id="timeSlider" type="range" aria-label="시뮬레이션 시각" step="60000">
+          <div class="slider-ends"><span>출발 1시간 전</span><span>도착 1시간 후</span></div>
+        </div>
+      </div>
+    </details>
+
+    <div class="section-label pwa-label-row"><span>OFFLINE APP</span><span>iPhone 홈 화면용</span></div>
+
+    <details class="install-guide" id="installGuide">
+      <summary>
+        <span class="summary-title"><span class="summary-icon" aria-hidden="true">↓</span>오프라인 설치 안내</span>
+        <span style="display:flex;align-items:center"><span class="summary-state" id="installSummary">확인 중</span><span class="chevron" aria-hidden="true"></span></span>
+      </summary>
+      <div class="install-body">
+        <div class="install-status" id="installStatus" data-state="checking">
+          <div><span id="installStatusTitle">오프라인 저장 상태 확인 중</span><small id="installStatusDetail">Service Worker와 앱 파일을 확인하고 있습니다.</small></div>
+        </div>
+        <ol class="install-steps">
+          <li>인터넷이 있을 때 이 페이지를 <strong>Safari에서 한 번 열기</strong></li>
+          <li>공유 버튼을 눌러 <strong>홈 화면에 추가</strong></li>
+          <li>추가된 아이콘으로 한 번 실행해 <strong>오프라인 준비 완료</strong> 확인</li>
+          <li>출발 전에 <strong>비행기 모드 → 앱 완전히 닫기 → 다시 열기</strong>로 실행 테스트</li>
+        </ol>
+        <p class="baggage-note">최초 저장에는 인터넷이 필요합니다. 사이트 데이터 삭제·브라우저 저장 공간 정리 시 다시 저장해야 합니다. 기기의 자동 시간 설정을 켜두세요.</p>
+      </div>
+    </details>
+
+    <aside class="notice" aria-label="중요 안내">
+      <div class="notice-icon" aria-hidden="true">i</div>
+      <div><strong>예정 시각 기반 추정이며 실제 지연·당일 항로·실시간 위치를 반영하지 않음.</strong><br>지도는 <strong>2026.10.04 파리 출발 TW402</strong>의 실관측 위치를 단순화했습니다. 금색 점선은 관측 공백(최대 약 132분)과 공항 연결 보간이며, 실제 경로를 확인한 구간이 아닙니다. 과거 경로는 10월 10일 항로를 보장하지 않습니다. 국가·도시는 참고 항로에서 가까운 주요 도시 기준이며, <strong>기기 시간을 자동 설정</strong>해주세요.<br>파리 출발 10/10 20:30(UTC+2), 인천 도착 10/11 15:40(UTC+9): 시차를 반영한 예정 소요 시간은 <strong>12시간 10분</strong>입니다.<br><a href="https://www.flightaware.com/live/flight/TWB402/history/20261004/1840Z/LFPG/RKSI/tracklog" target="_blank" rel="noopener noreferrer">출처: FlightAware 10/4 운항 기록</a> · 2026.10.06 확인 · 출처 열기는 인터넷 필요</div>
+    </aside>
+
+    <footer class="self-test">
+      <span class="footer-status"><span class="test-result" id="testResult">SELF-TEST 실행 중</span><span class="footer-signature">from kangho</span></span>
+      <span class="footer-line">OFFLINE · NO GPS · v2.0</span>
+    </footer>
+  </main>
+
+  <script>
+    (() => {
+      'use strict';
+
+      const DEPARTURE_MS = Date.parse('2026-10-10T18:30:00Z');
+      const ARRIVAL_MS = Date.parse('2026-10-11T06:40:00Z');
+      const DURATION_MS = ARRIVAL_MS - DEPARTURE_MS;
+      const ICN = Object.freeze({ lat: 37.4602, lon: 126.4407 });
+      const CDG = Object.freeze({ lat: 49.0097, lon: 2.5479 });
+      const MAP = Object.freeze({ width: 1000, height: 500, scale: 178 });
+      // Oct 4, 2026 TWB402: simplified measured FlightAware ADS-B/MLAT positions.
+      // 87 measured samples from 753 observations; 188 "Estimated" source rows excluded.
+      // Gaps and airport connectors are explicitly dashed. See route-evidence.json.
+      // Historical positions do not predict the Oct 10 flight. Time maps to distance,
+      // not to the historical timestamps or the aircraft's actual speed.
+      const ROUTE_WAYPOINTS = Object.freeze([
+  {
+    "lat": 49.0097,
+    "lon": 2.5479
+  },
+  {
+    "lat": 49.0237,
+    "lon": 2.5707
+  },
+  {
+    "lat": 49.0599,
+    "lon": 2.7768
+  },
+  {
+    "lat": 49.1082,
+    "lon": 3.0943
+  },
+  {
+    "lat": 48.8913,
+    "lon": 3.7671
+  },
+  {
+    "lat": 48.6677,
+    "lon": 4.5991
+  },
+  {
+    "lat": 48.4216,
+    "lon": 5.5469
+  },
+  {
+    "lat": 48.1173,
+    "lon": 6.4795
+  },
+  {
+    "lat": 47.8803,
+    "lon": 7.5391
+  },
+  {
+    "lat": 47.7654,
+    "lon": 8.6202
+  },
+  {
+    "lat": 47.6429,
+    "lon": 9.677
+  },
+  {
+    "lat": 47.548,
+    "lon": 10.7088
+  },
+  {
+    "lat": 47.4673,
+    "lon": 11.7413
+  },
+  {
+    "lat": 47.3574,
+    "lon": 12.7516
+  },
+  {
+    "lat": 47.2412,
+    "lon": 13.7459
+  },
+  {
+    "lat": 47.1169,
+    "lon": 14.7319
+  },
+  {
+    "lat": 46.9843,
+    "lon": 15.7104
+  },
+  {
+    "lat": 46.8204,
+    "lon": 16.6705
+  },
+  {
+    "lat": 46.6316,
+    "lon": 17.6063
+  },
+  {
+    "lat": 46.4361,
+    "lon": 18.5311
+  },
+  {
+    "lat": 46.2314,
+    "lon": 19.4574
+  },
+  {
+    "lat": 46.0171,
+    "lon": 20.3865
+  },
+  {
+    "lat": 45.7958,
+    "lon": 21.3061
+  },
+  {
+    "lat": 45.5643,
+    "lon": 22.2303
+  },
+  {
+    "lat": 45.3235,
+    "lon": 23.1542
+  },
+  {
+    "lat": 45.0751,
+    "lon": 24.0701
+  },
+  {
+    "lat": 44.8038,
+    "lon": 25.0326
+  },
+  {
+    "lat": 44.4917,
+    "lon": 26.094
+  },
+  {
+    "lat": 44.2232,
+    "lon": 26.9678
+  },
+  {
+    "lat": 43.9402,
+    "lon": 27.8597
+  },
+  {
+    "lat": 43.6407,
+    "lon": 28.6923
+  },
+  {
+    "lat": 43.2632,
+    "lon": 29.5021
+  },
+  {
+    "lat": 42.8869,
+    "lon": 30.2864
+  },
+  {
+    "lat": 42.6854,
+    "lon": 31.1413
+  },
+  {
+    "lat": 42.6372,
+    "lon": 32.1089
+  },
+  {
+    "lat": 42.5759,
+    "lon": 32.9957
+  },
+  {
+    "lat": 41.6646,
+    "lon": 44.6693
+  },
+  {
+    "lat": 41.636,
+    "lon": 44.7561
+  },
+  {
+    "lat": 41.2504,
+    "lon": 46.2882
+  },
+  {
+    "lat": 41.1728,
+    "lon": 47.2644
+  },
+  {
+    "lat": 41.2168,
+    "lon": 48.3657
+  },
+  {
+    "lat": 41.4669,
+    "lon": 49.2916
+  },
+  {
+    "lat": 41.7079,
+    "lon": 50.2193
+  },
+  {
+    "lat": 42.0193,
+    "lon": 51.4548
+  },
+  {
+    "lat": 42.2688,
+    "lon": 52.3809
+  },
+  {
+    "lat": 42.4653,
+    "lon": 53.1352
+  },
+  {
+    "lat": 44.2565,
+    "lon": 66.6364
+  },
+  {
+    "lat": 44.2544,
+    "lon": 67.1873
+  },
+  {
+    "lat": 44.2368,
+    "lon": 68.596
+  },
+  {
+    "lat": 44.2043,
+    "lon": 69.9266
+  },
+  {
+    "lat": 44.144,
+    "lon": 71.546
+  },
+  {
+    "lat": 44.0852,
+    "lon": 72.7324
+  },
+  {
+    "lat": 44.0164,
+    "lon": 73.8789
+  },
+  {
+    "lat": 43.9491,
+    "lon": 74.8993
+  },
+  {
+    "lat": 43.8934,
+    "lon": 75.9017
+  },
+  {
+    "lat": 43.832,
+    "lon": 76.8593
+  },
+  {
+    "lat": 43.763,
+    "lon": 77.8118
+  },
+  {
+    "lat": 43.6803,
+    "lon": 78.8291
+  },
+  {
+    "lat": 43.5933,
+    "lon": 79.7898
+  },
+  {
+    "lat": 43.4898,
+    "lon": 80.863
+  },
+  {
+    "lat": 43.4395,
+    "lon": 81.3759
+  },
+  {
+    "lat": 41.4569,
+    "lon": 103.4847
+  },
+  {
+    "lat": 41.3158,
+    "lon": 103.9712
+  },
+  {
+    "lat": 41.0397,
+    "lon": 104.8774
+  },
+  {
+    "lat": 40.7597,
+    "lon": 105.6944
+  },
+  {
+    "lat": 40.4135,
+    "lon": 106.6726
+  },
+  {
+    "lat": 40.4157,
+    "lon": 107.8447
+  },
+  {
+    "lat": 40.5306,
+    "lon": 108.8619
+  },
+  {
+    "lat": 40.6236,
+    "lon": 109.7517
+  },
+  {
+    "lat": 40.636,
+    "lon": 111.2133
+  },
+  {
+    "lat": 40.6142,
+    "lon": 112.3411
+  },
+  {
+    "lat": 40.4815,
+    "lon": 114.5631
+  },
+  {
+    "lat": 40.4732,
+    "lon": 114.7393
+  },
+  {
+    "lat": 40.4165,
+    "lon": 115.7409
+  },
+  {
+    "lat": 40.2222,
+    "lon": 116.7623
+  },
+  {
+    "lat": 39.6599,
+    "lon": 116.9581
+  },
+  {
+    "lat": 39.2818,
+    "lon": 117.7715
+  },
+  {
+    "lat": 38.9354,
+    "lon": 118.8711
+  },
+  {
+    "lat": 38.9224,
+    "lon": 118.9497
+  },
+  {
+    "lat": 37.4885,
+    "lon": 123.2901
+  },
+  {
+    "lat": 37.0946,
+    "lon": 123.9729
+  },
+  {
+    "lat": 37.1434,
+    "lon": 124.8616
+  },
+  {
+    "lat": 37.1732,
+    "lon": 125.5847
+  },
+  {
+    "lat": 37.1118,
+    "lon": 126.1328
+  },
+  {
+    "lat": 37.1822,
+    "lon": 126.5397
+  },
+  {
+    "lat": 37.3266,
+    "lon": 126.5397
+  },
+  {
+    "lat": 37.4284,
+    "lon": 126.4493
+  },
+  {
+    "lat": 37.4458,
+    "lon": 126.4339
+  },
+  {
+    "lat": 37.4602,
+    "lon": 126.4407
+  }
+].map(point => Object.freeze(point)));
+      const ROUTE_GAPS = Object.freeze([
+  {
+    "start": {
+      "lat": 49.0097,
+      "lon": 2.5479
+    },
+    "end": {
+      "lat": 49.0237,
+      "lon": 2.5707
+    },
+    "kind": "airport-connector"
+  },
+  {
+    "start": {
+      "lat": 42.5759,
+      "lon": 32.9957
+    },
+    "end": {
+      "lat": 41.6646,
+      "lon": 44.6693
+    },
+    "kind": "observation-gap",
+    "durationSeconds": 3935
+  },
+  {
+    "start": {
+      "lat": 41.6646,
+      "lon": 44.6693
+    },
+    "end": {
+      "lat": 41.636,
+      "lon": 44.7561
+    },
+    "kind": "observation-gap",
+    "durationSeconds": 30
+  },
+  {
+    "start": {
+      "lat": 42.4653,
+      "lon": 53.1352
+    },
+    "end": {
+      "lat": 44.2565,
+      "lon": 66.6364
+    },
+    "kind": "observation-gap",
+    "durationSeconds": 4009
+  },
+  {
+    "start": {
+      "lat": 43.4395,
+      "lon": 81.3759
+    },
+    "end": {
+      "lat": 41.4569,
+      "lon": 103.4847
+    },
+    "kind": "observation-gap",
+    "durationSeconds": 7929
+  },
+  {
+    "start": {
+      "lat": 40.6142,
+      "lon": 112.3411
+    },
+    "end": {
+      "lat": 40.4815,
+      "lon": 114.5631
+    },
+    "kind": "observation-gap",
+    "durationSeconds": 752
+  },
+  {
+    "start": {
+      "lat": 38.9224,
+      "lon": 118.9497
+    },
+    "end": {
+      "lat": 37.4885,
+      "lon": 123.2901
+    },
+    "kind": "observation-gap",
+    "durationSeconds": 1693
+  },
+  {
+    "start": {
+      "lat": 37.4458,
+      "lon": 126.4339
+    },
+    "end": {
+      "lat": 37.4602,
+      "lon": 126.4407
+    },
+    "kind": "airport-connector"
+  }
+]);
+      const ROUTE_CITIES = Object.freeze([
+        { country: '스위스', city: '취리히', lat: 47.3769, lon: 8.5417 },
+        { country: '오스트리아', city: '인스브루크', lat: 47.2692, lon: 11.4041 },
+        { country: '오스트리아', city: '그라츠', lat: 47.0707, lon: 15.4395 },
+        { country: '루마니아', city: '티미쇼아라', lat: 45.7489, lon: 21.2087 },
+        { country: '카자흐스탄', city: '키질로르다', lat: 44.8488, lon: 65.4823 },
+        { country: '카자흐스탄', city: '투르키스탄', lat: 43.3019, lon: 68.2692 },
+        { country: '카자흐스탄', city: '타라즈', lat: 42.9000, lon: 71.3667 },
+        { country: '카자흐스탄', city: '알마티', lat: 43.2389, lon: 76.8897 },
+        { country: '중국', city: '이닝', lat: 43.9167, lon: 81.3167 },
+        { country: '중국', city: '바옌나오얼', lat: 40.7432, lon: 107.3877 },
+        { country: '중국', city: '후허하오터', lat: 40.8415, lon: 111.7510 },
+        { country: '중국', city: '장자커우', lat: 40.8100, lon: 114.8800 },
+        { country: '중국', city: '베이징', lat: 39.9042, lon: 116.4074 },
+        { country: '대한민국', city: '인천', lat: 37.4602, lon: 126.4407 },
+        { country: '중국', city: '옌타이', lat: 37.464, lon: 121.448 },
+        { country: '중국', city: '톈진', lat: 39.084, lon: 117.201 },
+        { country: '중국', city: '타이위안', lat: 37.871, lon: 112.548 },
+        { country: '중국', city: '위린', lat: 38.285, lon: 109.734 },
+        { country: '중국', city: '인촨', lat: 38.487, lon: 106.231 },
+        { country: '중국', city: '주취안', lat: 39.733, lon: 98.494 },
+        { country: '중국', city: '하미', lat: 42.819, lon: 93.516 },
+        { country: '중국', city: '우루무치', lat: 43.826, lon: 87.617 },
+        { country: '중국', city: '타청', lat: 46.746, lon: 82.978 },
+        { country: '카자흐스탄', city: '발하슈', lat: 46.844, lon: 74.980 },
+        { country: '카자흐스탄', city: '제즈카즈간', lat: 47.783, lon: 67.700 },
+        { country: '카자흐스탄', city: '아랄', lat: 46.800, lon: 61.667 },
+        { country: '카자흐스탄', city: '베이네우', lat: 45.321, lon: 55.200 },
+        { country: '카자흐스탄', city: '악타우', lat: 43.653, lon: 51.160 },
+        { country: '아제르바이잔', city: '바쿠', lat: 40.409, lon: 49.868 },
+        { country: '조지아', city: '트빌리시', lat: 41.716, lon: 44.783 },
+        { country: '조지아', city: '쿠타이시', lat: 42.267, lon: 42.694 },
+        { country: '튀르키예', city: '삼순', lat: 41.286, lon: 36.330 },
+        { country: '불가리아', city: '바르나', lat: 43.214, lon: 27.915 },
+        { country: '루마니아', city: '부쿠레슈티', lat: 44.427, lon: 26.103 },
+        { country: '루마니아', city: '클루지나포카', lat: 46.771, lon: 23.624 },
+        { country: '헝가리', city: '부다페스트', lat: 47.498, lon: 19.040 },
+        { country: '오스트리아', city: '빈', lat: 48.208, lon: 16.374 },
+        { country: '독일', city: '뉘른베르크', lat: 49.452, lon: 11.077 },
+        { country: '독일', city: '프랑크푸르트', lat: 50.110, lon: 8.682 },
+        { country: '룩셈부르크', city: '룩셈부르크', lat: 49.612, lon: 6.132 },
+        { country: '프랑스', city: '파리', lat: 49.0097, lon: 2.5479 }
+      ]);
+      const RAD = Math.PI / 180;
+      const DEG = 180 / Math.PI;
+
+      const $ = (id) => document.getElementById(id);
+      const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+      const toVector = ({ lat, lon }) => {
+        const phi = lat * RAD;
+        const lambda = lon * RAD;
+        return [Math.cos(phi) * Math.cos(lambda), Math.cos(phi) * Math.sin(lambda), Math.sin(phi)];
+      };
+
+      function slerp(a, b, t) {
+        const va = toVector(a);
+        const vb = toVector(b);
+        const dot = clamp(va[0] * vb[0] + va[1] * vb[1] + va[2] * vb[2], -1, 1);
+        const omega = Math.acos(dot);
+        if (omega < 1e-12) return { lat: a.lat, lon: a.lon };
+        const sinOmega = Math.sin(omega);
+        const scaleA = Math.sin((1 - t) * omega) / sinOmega;
+        const scaleB = Math.sin(t * omega) / sinOmega;
+        const v = va.map((value, index) => value * scaleA + vb[index] * scaleB);
+        return {
+          lat: Math.atan2(v[2], Math.hypot(v[0], v[1])) * DEG,
+          lon: Math.atan2(v[1], v[0]) * DEG
+        };
+      }
+
+      function distanceKm(a, b) {
+        const phi1 = a.lat * RAD;
+        const phi2 = b.lat * RAD;
+        const deltaPhi = (b.lat - a.lat) * RAD;
+        const deltaLambda = (b.lon - a.lon) * RAD;
+        const haversine = Math.sin(deltaPhi / 2) ** 2 + Math.cos(phi1) * Math.cos(phi2) * Math.sin(deltaLambda / 2) ** 2;
+        return 6371.0088 * 2 * Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine));
+      }
+
+      const ROUTE_LEGS = Object.freeze(ROUTE_WAYPOINTS.slice(0, -1).map((start, index) => Object.freeze({
+        start,
+        end: ROUTE_WAYPOINTS[index + 1],
+        distance: distanceKm(start, ROUTE_WAYPOINTS[index + 1])
+      })));
+      const ROUTE_DISTANCE_KM = ROUTE_LEGS.reduce((total, leg) => total + leg.distance, 0);
+
+      // Time progress is mapped to cumulative route distance. Within each leg,
+      // slerp follows that leg's great-circle arc on the sphere.
+      function routePointAt(progress) {
+        const target = clamp(progress, 0, 1) * ROUTE_DISTANCE_KM;
+        let covered = 0;
+        for (const leg of ROUTE_LEGS) {
+          if (target <= covered + leg.distance) {
+            return slerp(leg.start, leg.end, (target - covered) / leg.distance);
+          }
+          covered += leg.distance;
+        }
+        return { lat: ICN.lat, lon: ICN.lon };
+      }
+
+      function nearestRouteCity(point) {
+        return ROUTE_CITIES.reduce((nearest, candidate) => {
+          const distance = distanceKm(point, candidate);
+          return !nearest || distance < nearest.distance ? { ...candidate, distance } : nearest;
+        }, null);
+      }
+
+      // Equal Earth projection keeps continental proportions readable on a phone.
+      function project({ lat, lon }) {
+        const A1 = 1.340264, A2 = -0.081106, A3 = 0.000893, A4 = 0.003796;
+        const lambda = lon * RAD;
+        const theta = Math.asin(Math.sqrt(3) / 2 * Math.sin(lat * RAD));
+        const theta2 = theta * theta;
+        const theta6 = theta2 * theta2 * theta2;
+        const denominator = 3 * (9 * A4 * theta6 * theta2 + 7 * A3 * theta6 + 3 * A2 * theta2 + A1);
+        const x = 2 * Math.sqrt(3) * lambda * Math.cos(theta) / denominator;
+        const y = theta * (A4 * theta6 * theta2 + A3 * theta6 + A2 * theta2 + A1);
+        return { x: MAP.width / 2 + x * MAP.scale, y: MAP.height / 2 - y * MAP.scale };
+      }
+
+      // A crossing is explicitly cut at ±180°, preventing a line across the map.
+      function splitAntimeridian(points) {
+        if (!points.length) return [];
+        const segments = [[points[0]]];
+        for (let i = 1; i < points.length; i += 1) {
+          const previous = points[i - 1];
+          const current = points[i];
+          const delta = current.lon - previous.lon;
+          // +180 and -180 are the same meridian. A full-width polar edge is
+          // intentional, while ordinary crossings are split below.
+          if (Math.abs(delta) >= 359.999) {
+            segments[segments.length - 1].push(current);
+            continue;
+          }
+          if (Math.abs(delta) <= 180) {
+            segments[segments.length - 1].push(current);
+            continue;
+          }
+          const eastward = delta < -180;
+          const boundary = eastward ? 180 : -180;
+          const adjustedLon = eastward ? current.lon + 360 : current.lon - 360;
+          const fraction = (boundary - previous.lon) / (adjustedLon - previous.lon);
+          const latitude = previous.lat + (current.lat - previous.lat) * fraction;
+          segments[segments.length - 1].push({ lat: latitude, lon: boundary });
+          segments.push([{ lat: latitude, lon: -boundary }, current]);
+        }
+        return segments;
+      }
+
+      function pathFromGeo(points, close = false) {
+        return splitAntimeridian(points).map((segment) => {
+          const commands = segment.map((point, index) => {
+            const p = project(point);
+            return `${index ? 'L' : 'M'}${p.x.toFixed(2)},${p.y.toFixed(2)}`;
+          });
+          if (close) commands.push('Z');
+          return commands.join(' ');
+        }).join(' ');
+      }
+
+      const LAND = [
+        // North America
+        [[-168,66],[-156,58],[-149,60],[-141,59],[-134,55],[-129,51],[-124,49],[-124,42],[-117,33],[-110,29],[-103,24],[-97,19],[-91,18],[-86,21],[-82,25],[-81,31],[-75,36],[-70,42],[-66,44],[-62,50],[-57,52],[-60,58],[-67,61],[-75,64],[-82,72],[-96,78],[-112,76],[-126,71],[-141,70],[-154,72]],
+        // Greenland
+        [[-73,60],[-58,59],[-44,60],[-29,68],[-20,75],[-27,82],[-45,84],[-62,80],[-70,72]],
+        // South America
+        [[-81,12],[-72,12],[-65,10],[-59,7],[-51,3],[-47,-5],[-38,-10],[-39,-18],[-44,-23],[-48,-29],[-52,-34],[-56,-42],[-65,-55],[-72,-51],[-74,-40],[-71,-31],[-75,-20],[-80,-6]],
+        // Eurasia
+        [[-11,36],[-9,43],[-3,48],[4,52],[8,58],[17,69],[27,71],[38,68],[48,70],[59,74],[74,75],[91,78],[110,74],[127,71],[145,72],[162,69],[179,65],[173,59],[160,56],[151,52],[142,49],[136,43],[130,41],[126,35],[121,30],[116,24],[109,20],[102,12],[98,8],[91,10],[86,20],[78,22],[73,19],[68,24],[60,25],[55,30],[48,29],[42,36],[35,36],[31,32],[27,35],[23,40],[16,39],[12,43],[8,43],[2,40],[-4,43]],
+        // Africa
+        [[-17,37],[-5,36],[5,37],[12,34],[20,32],[30,31],[35,28],[43,12],[51,10],[49,2],[43,-12],[36,-19],[31,-29],[20,-35],[13,-34],[5,-29],[-1,-18],[-8,-5],[-15,5],[-17,18],[-13,28]],
+        // Arabia
+        [[35,30],[48,30],[57,24],[54,16],[45,12],[40,19]],
+        // India / SE Asia
+        [[67,24],[76,29],[88,24],[92,21],[96,16],[104,10],[108,4],[103,1],[98,7],[92,9],[86,20],[80,8],[77,7],[73,17]],
+        // Australia
+        [[113,-22],[116,-34],[126,-38],[139,-38],[151,-31],[154,-24],[146,-17],[137,-12],[126,-14],[118,-18]],
+        // United Kingdom
+        [[-8,50],[-6,57],[-2,59],[1,53]],
+        // Japan
+        [[130,32],[134,34],[137,37],[141,39],[145,44],[143,35],[138,33]],
+        // Madagascar
+        [[46,-14],[50,-17],[50,-25],[45,-26],[43,-20]],
+        // New Zealand
+        [[167,-35],[174,-40],[176,-46],[169,-44]],
+        // Iceland
+        [[-24,64],[-15,64],[-14,67],[-21,67]],
+        // Antarctica, split to preserve the date line
+        [[-180,-70],[-150,-72],[-120,-74],[-90,-72],[-60,-75],[-30,-72],[0,-74],[30,-72],[60,-75],[90,-72],[120,-75],[150,-71],[180,-70],[180,-90],[-180,-90]]
+      ].map((polygon) => polygon.map(([lon, lat]) => ({ lon, lat })));
+
+      const NS = 'http://www.w3.org/2000/svg';
+      function svgElement(name, attributes = {}) {
+        const node = document.createElementNS(NS, name);
+        Object.entries(attributes).forEach(([key, value]) => node.setAttribute(key, value));
+        return node;
+      }
+
+      function drawMap() {
+        const graticule = $('graticuleLayer');
+        for (let lon = -150; lon <= 150; lon += 30) {
+          const points = [];
+          for (let lat = -75; lat <= 75; lat += 3) points.push({ lat, lon });
+          graticule.append(svgElement('path', { class: 'graticule', d: pathFromGeo(points) }));
+        }
+        for (let lat = -60; lat <= 60; lat += 30) {
+          const points = [];
+          for (let lon = -180; lon <= 180; lon += 3) points.push({ lat, lon });
+          graticule.append(svgElement('path', { class: 'graticule', d: pathFromGeo(points) }));
+        }
+
+        const landLayer = $('landLayer');
+        LAND.forEach((polygon) => landLayer.append(svgElement('path', { class: 'land', d: pathFromGeo(polygon, true) })));
+
+        const routePoints = [];
+        for (let i = 0; i <= 360; i += 1) routePoints.push(routePointAt(i / 360));
+        const routeD = pathFromGeo(routePoints);
+        $('routeBase').setAttribute('d', routeD);
+        $('routeFlown').setAttribute('d', routeD);
+        const gapLayer = $('routeGapLayer');
+        ROUTE_GAPS.forEach(gap => {
+          const d = pathFromGeo(Array.from({ length: 41 }, (_, i) => slerp(gap.start, gap.end, i / 40)));
+          gapLayer.append(svgElement('path', { class: 'route-gap-mask', d }));
+          gapLayer.append(svgElement('path', { class: 'route-gap', d }));
+        });
+
+        const cities = [
+          { ...ICN, code: 'ICN', anchor: 'end', dx: -13, dy: -13 },
+          { ...CDG, code: 'CDG', anchor: 'start', dx: 13, dy: -13 }
+        ];
+        const cityLayer = $('cityLayer');
+        cities.forEach((city) => {
+          const p = project(city);
+          cityLayer.append(svgElement('circle', { class: 'city-ring', cx: p.x, cy: p.y, r: 7 }));
+          cityLayer.append(svgElement('circle', { class: 'city-core', cx: p.x, cy: p.y, r: 2.5 }));
+          const label = svgElement('text', { class: 'map-label', x: p.x + city.dx, y: p.y + city.dy, 'text-anchor': city.anchor });
+          label.textContent = city.code;
+          cityLayer.append(label);
+        });
+      }
+
+      function progressAt(timeMs) {
+        return clamp((timeMs - DEPARTURE_MS) / DURATION_MS, 0, 1);
+      }
+
+      function formatDuration(durationMs) {
+        const totalSeconds = Math.max(0, Math.floor(durationMs / 1000));
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        return `${hours}시간 ${String(minutes).padStart(2, '0')}분 ${String(seconds).padStart(2, '0')}초`;
+      }
+
+      function zonedParts(timeMs, timeZone) {
+        const parts = new Intl.DateTimeFormat('ko-KR', {
+          timeZone, month: 'long', day: 'numeric', weekday: 'short',
+          hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23'
+        }).formatToParts(new Date(timeMs));
+        const value = (type) => parts.find((part) => part.type === type)?.value || '';
+        return {
+          time: `${value('hour')}:${value('minute')}:${value('second')}`,
+          date: `${value('month')} ${value('day')}일 · ${value('weekday')}`
+        };
+      }
+
+      function formatSimTime(timeMs) {
+        return new Intl.DateTimeFormat('ko-KR', {
+          timeZone: 'UTC', month: '2-digit', day: '2-digit',
+          hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23'
+        }).format(new Date(timeMs)) + ' UTC';
+      }
+
+      function formatCoordinate(value, positive, negative) {
+        return `${Math.abs(value).toFixed(4)}° ${value >= 0 ? positive : negative}`;
+      }
+
+      function headingAt(progress) {
+        const epsilon = 0.0002;
+        const before = project(routePointAt(clamp(progress - epsilon, 0, 1)));
+        const after = project(routePointAt(clamp(progress + epsilon, 0, 1)));
+        return Math.atan2(after.y - before.y, after.x - before.x) * DEG;
+      }
+
+      let mode = 'device';
+      let simulatedMs = DEPARTURE_MS;
+      let offlineReady = false;
+
+      function setOfflineUI(state, title, detail) {
+        const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+        $('offlinePill').dataset.state = state;
+        $('offlinePill').textContent = state === 'ready'
+          ? (navigator.onLine ? '오프라인 준비 완료' : '오프라인 작동 중')
+          : state === 'error' ? '오프라인 확인 필요' : '오프라인 준비 중';
+        $('installStatus').dataset.state = state;
+        $('installStatusTitle').textContent = title;
+        $('installStatusDetail').textContent = detail;
+        $('installSummary').textContent = standalone && state === 'ready'
+          ? '홈 화면 앱 · 준비 완료'
+          : state === 'ready' ? '저장 완료' : state === 'error' ? '확인 필요' : '준비 중';
+      }
+
+      function activatedWorker(registration) {
+        return new Promise((resolve, reject) => {
+          const worker = registration.installing || registration.waiting || registration.active;
+          if (!worker) return reject(new Error('No return-flight worker'));
+          if (worker.state === 'activated') return resolve(worker);
+          const timeout = setTimeout(() => reject(new Error('Offline activation timed out')), 20000);
+          worker.addEventListener('statechange', () => {
+            if (worker.state === 'activated') { clearTimeout(timeout); resolve(worker); }
+            if (worker.state === 'redundant') { clearTimeout(timeout); reject(new Error('Offline installation failed')); }
+          });
+        });
+      }
+
+      function checkOfflineShell(worker) {
+        return new Promise((resolve, reject) => {
+          const channel = new MessageChannel();
+          const timeout = setTimeout(() => { channel.port1.close(); reject(new Error('Offline cache check timed out')); }, 10000);
+          channel.port1.onmessage = event => {
+            clearTimeout(timeout);
+            channel.port1.close();
+            if (event.data?.type === 'CACHE_STATUS' && event.data.ready && event.data.version?.startsWith('tw402-return-flight-')) resolve(event.data);
+            else reject(new Error('Return-flight files are not fully cached'));
+          };
+          worker.postMessage({ type: 'GET_CACHE_STATUS' }, [channel.port2]);
+        });
+      }
+
+      async function setupOfflineApp() {
+        if (location.protocol === 'file:') {
+          offlineReady = true;
+          setOfflineUI('ready', '단일 HTML은 오프라인으로 열림', 'HTML 열기를 지원하는 브라우저에서 사용할 수 있습니다. iPhone 홈 화면 설치는 공개 HTTPS 주소를 Safari로 열어주세요.');
+          return;
+        }
+        if (!('serviceWorker' in navigator) || !window.isSecureContext) {
+          setOfflineUI('error', '이 환경에서는 오프라인 설치를 지원하지 않음', 'Safari 또는 최신 브라우저에서 공개 HTTPS 주소를 열어주세요.');
+          return;
+        }
+        setOfflineUI('checking', '귀국편 파일을 이 기기에 저장하는 중', '이 화면을 닫지 말고 잠시 기다려주세요.');
+        try {
+          const registration = await navigator.serviceWorker.register('./sw.js', { scope: './', updateViaCache: 'none' });
+          const worker = await activatedWorker(registration);
+          await checkOfflineShell(worker);
+          offlineReady = true;
+          const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+          setOfflineUI('ready', standalone ? '귀국편 홈 화면 앱 · 오프라인 준비 완료' : '귀국편 오프라인 파일 저장 완료',
+            standalone ? '비행기 모드로 바꾼 뒤 앱을 완전히 닫고 다시 열어 확인하세요.' : '공유 → 홈 화면에 추가한 뒤, 아이콘으로 한 번 더 실행하세요.');
+          registration.addEventListener('updatefound', async () => {
+            try {
+              setOfflineUI('checking', '귀국편 새 버전을 저장하는 중', '완료되면 오프라인 준비 상태로 자동 전환됩니다.');
+              await checkOfflineShell(await activatedWorker(registration));
+              offlineReady = true;
+              setOfflineUI('ready', '귀국편 새 버전 저장 완료', '새로고침하면 업데이트된 화면을 볼 수 있습니다.');
+            } catch (error) {
+              setOfflineUI('error', '새 버전 저장 상태 확인 필요', '인터넷이 있을 때 새로고침하고 준비 완료 표시를 확인하세요.');
+            }
+          });
+        } catch (error) {
+          offlineReady = false;
+          console.error('Offline setup failed:', error);
+          setOfflineUI('error', '귀국편 오프라인 저장에 실패함', '인터넷 연결과 HTTPS 주소를 확인한 뒤 새로고침하세요. 준비 완료 후 비행기 모드로 다시 열어보세요.');
+        }
+      }
+
+      window.addEventListener('online', () => {
+        if (offlineReady) setOfflineUI('ready', '오프라인 파일 저장 완료', '공유 → 홈 화면에 추가한 뒤, 아이콘으로 한 번 더 실행하세요.');
+      });
+      window.addEventListener('offline', () => {
+        if (offlineReady) setOfflineUI('ready', '오프라인 캐시로 실행 중', '서버 연결 없이 이 기기에 저장된 앱 파일을 사용하고 있습니다.');
+      });
+
+      function setPressedPreset(name) {
+        document.querySelectorAll('[data-preset]').forEach((button) => {
+          button.setAttribute('aria-pressed', String(button.dataset.preset === name));
+        });
+      }
+
+      function effectiveTime() {
+        return mode === 'device' ? Date.now() : simulatedMs;
+      }
+
+      function render(timeMs = effectiveTime()) {
+        const progress = progressAt(timeMs);
+        const point = routePointAt(progress);
+        const location = nearestRouteCity(point);
+        const projected = project(point);
+        const heading = headingAt(progress);
+        const elapsed = clamp(timeMs - DEPARTURE_MS, 0, DURATION_MS);
+        const remaining = clamp(ARRIVAL_MS - timeMs, 0, DURATION_MS);
+        const before = timeMs < DEPARTURE_MS;
+        const arrived = timeMs >= ARRIVAL_MS;
+        const phase = before ? 'before' : arrived ? 'arrived' : 'inflight';
+
+        $('progressValue').textContent = (progress * 100).toFixed(1);
+        $('progressOrb').style.setProperty('--progress-deg', `${progress * 360}deg`);
+        $('progressOrb').setAttribute('aria-valuenow', (progress * 100).toFixed(1));
+        $('elapsedValue').textContent = formatDuration(elapsed);
+        $('remainingValue').textContent = formatDuration(remaining);
+        const proximity = location.distance < 15 ? '' : ' 인근';
+        $('locationReadout').textContent = `${location.country} · ${location.city}${proximity}`;
+        $('locationDetail').textContent = location.distance < 15
+          ? '참고 항로상 가까운 주요 도시'
+          : `가까운 주요 도시까지 약 ${Math.round(location.distance)} km`;
+        $('coordinateReadout').textContent = `${formatCoordinate(point.lat, 'N', 'S')} · ${formatCoordinate(point.lon, 'E', 'W')}`;
+        $('headingReadout').textContent = `${Math.round((heading + 360) % 360).toString().padStart(3, '0')}° MAP`;
+        $('planeGroup').setAttribute('transform', `translate(${projected.x.toFixed(2)} ${projected.y.toFixed(2)}) rotate(${heading.toFixed(2)})`);
+
+        $('routeFlown').setAttribute('stroke-dasharray', `${progress.toFixed(6)} 1`);
+
+        $('statusChip').dataset.phase = phase;
+        if (before) {
+          $('statusChipText').textContent = '출발 전';
+          $('phaseKicker').textContent = 'PRE-FLIGHT';
+          $('phaseTitle').textContent = '출발을 기다리는 중';
+          $('phaseDetail').textContent = `예정 출발까지 ${formatDuration(DEPARTURE_MS - timeMs)}`;
+        } else if (arrived) {
+          $('statusChipText').textContent = '도착 시각 지남';
+          $('phaseKicker').textContent = 'SCHEDULE COMPLETE';
+          $('phaseTitle').textContent = '예정 도착 시각이 지났어요';
+          $('phaseDetail').textContent = `실제 착륙 여부는 반영하지 않습니다`;
+        } else {
+          $('statusChipText').textContent = '비행 중 추정';
+          $('phaseKicker').textContent = 'EN ROUTE';
+          $('phaseTitle').textContent = '인천으로 비행 중 추정';
+          $('phaseDetail').textContent = `출발 후 ${formatDuration(elapsed)} · ${formatDuration(remaining)} 남음`;
+        }
+
+        const seoul = zonedParts(timeMs, 'Asia/Seoul');
+        const paris = zonedParts(timeMs, 'Europe/Paris');
+        $('seoulTime').textContent = seoul.time;
+        $('seoulDate').textContent = seoul.date;
+        $('parisTime').textContent = paris.time;
+        $('parisDate').textContent = paris.date;
+        $('parisZone').textContent = 'PARIS · ' + new Intl.DateTimeFormat('en', { timeZone: 'Europe/Paris', timeZoneName: 'shortOffset' }).formatToParts(new Date(timeMs)).find(part => part.type === 'timeZoneName').value.replace('GMT', 'UTC');
+
+        const isLive = mode === 'device';
+        $('app').classList.toggle('is-live', isLive);
+        $('app').classList.toggle('is-simulating', !isLive);
+        $('mapMode').textContent = isLive ? 'DEVICE TIME' : 'SIMULATED';
+        $('timeSourceLabel').textContent = isLive ? '기기 시각 기준' : '시뮬레이션 시각';
+        $('summaryState').textContent = isLive ? '기기 시각' : '시뮬레이션 중';
+        $('simReadout').textContent = isLive ? `실제 기기 시각 · ${formatSimTime(timeMs)}` : `시뮬레이션 · ${formatSimTime(timeMs)}`;
+
+        const slider = $('timeSlider');
+        if (!isLive || (timeMs >= Number(slider.min) && timeMs <= Number(slider.max))) slider.value = String(timeMs);
+
+        document.body.dataset.phase = phase;
+        document.body.dataset.mode = mode;
+        document.body.dataset.progress = progress.toFixed(6);
+      }
+
+      function usePreset(name) {
+        const values = {
+          before: DEPARTURE_MS - 30 * 60 * 1000,
+          '25': DEPARTURE_MS + DURATION_MS * .25,
+          '50': DEPARTURE_MS + DURATION_MS * .5,
+          '75': DEPARTURE_MS + DURATION_MS * .75,
+          after: ARRIVAL_MS + 30 * 60 * 1000
+        };
+        if (name === 'device') {
+          mode = 'device';
+        } else {
+          mode = 'simulated';
+          simulatedMs = values[name];
+        }
+        setPressedPreset(name);
+        render();
+      }
+
+      function runSelfTests() {
+        const tests = [];
+        const test = (name, condition) => tests.push({ name, pass: Boolean(condition) });
+        const near = (actual, expected, tolerance = 1e-6) => Math.abs(actual - expected) <= tolerance;
+        const quarter = routePointAt(.25);
+        const midpoint = routePointAt(.5);
+        const threeQuarter = routePointAt(.75);
+        const start = routePointAt(0);
+        const end = routePointAt(1);
+        const startLocation = nearestRouteCity(start);
+        const midLocation = nearestRouteCity(midpoint);
+        const endLocation = nearestRouteCity(end);
+        const avoidsDprk = Array.from({ length: 501 }, (_, index) => routePointAt(index / 500))
+          .every((point) => point.lon < 124 || point.lat < 38);
+
+        test('UTC departure boundary', DEPARTURE_MS === Date.UTC(2026, 9, 10, 18, 30));
+        test('UTC arrival boundary', ARRIVAL_MS === Date.UTC(2026, 9, 11, 6, 40));
+        test('12 hour 10 minute duration', DURATION_MS === 730 * 60 * 1000);
+        test('before progress', progressAt(DEPARTURE_MS - 1) === 0);
+        test('0% progress', progressAt(DEPARTURE_MS) === 0);
+        test('25% progress', progressAt(DEPARTURE_MS + DURATION_MS * .25) === .25);
+        test('50% progress', progressAt(DEPARTURE_MS + DURATION_MS * .5) === .5);
+        test('75% progress', progressAt(DEPARTURE_MS + DURATION_MS * .75) === .75);
+        test('100% progress', progressAt(ARRIVAL_MS) === 1);
+        test('after progress', progressAt(ARRIVAL_MS + 1) === 1);
+        test('CDG start coordinate', near(start.lat, CDG.lat) && near(start.lon, CDG.lon));
+        test('25% coordinate finite', Number.isFinite(quarter.lat) && Number.isFinite(quarter.lon));
+        test('midpoint coordinate finite', Number.isFinite(midpoint.lat) && Number.isFinite(midpoint.lon));
+        test('75% coordinate finite', Number.isFinite(threeQuarter.lat) && Number.isFinite(threeQuarter.lon));
+        test('ICN end coordinate', near(end.lat, ICN.lat) && near(end.lon, ICN.lon));
+        test('start location', startLocation.country === '프랑스' && startLocation.city === '파리');
+        test('mid location exists', Boolean(midLocation.country && midLocation.city));
+        test('end location', endLocation.country === '대한민국' && endLocation.city === '인천');
+        test('North Korea avoidance corridor', avoidsDprk);
+        test('reference route plausible distance', ROUTE_DISTANCE_KM > 8800 && ROUTE_DISTANCE_KM < 13500);
+        test('date-line split', splitAntimeridian([{ lat: 10, lon: 170 }, { lat: 12, lon: -170 }]).length === 2);
+        test('Paris departure time', zonedParts(DEPARTURE_MS, 'Europe/Paris').time === '20:30:00');
+        test('Seoul arrival time', zonedParts(ARRIVAL_MS, 'Asia/Seoul').time === '15:40:00');
+        test('Paris departure date', zonedParts(DEPARTURE_MS, 'Europe/Paris').date === '10월 10일 · 토');
+        test('Seoul arrival date', zonedParts(ARRIVAL_MS, 'Asia/Seoul').date === '10월 11일 · 일');
+        test('Seoul departure is next day', zonedParts(DEPARTURE_MS, 'Asia/Seoul').time === '03:30:00' && zonedParts(DEPARTURE_MS, 'Asia/Seoul').date === '10월 11일 · 일');
+        test('Paris arrival time', zonedParts(ARRIVAL_MS, 'Europe/Paris').time === '08:40:00');
+        test('Paris midnight crossing', zonedParts(Date.UTC(2026, 9, 10, 22), 'Europe/Paris').time === '00:00:00' && zonedParts(Date.UTC(2026, 9, 10, 22), 'Europe/Paris').date === '10월 11일 · 일');
+        test('UTC midnight progress', near(progressAt(Date.UTC(2026, 9, 11)), 330 / 730));
+        test('explicit Paris offset', DEPARTURE_MS === Date.parse('2026-10-10T20:30:00+02:00'));
+        test('explicit Seoul offset', ARRIVAL_MS === Date.parse('2026-10-11T15:40:00+09:00'));
+        test('duration formatter', formatDuration(DURATION_MS) === '12시간 10분 00초');
+        test('negative duration clamped', formatDuration(-1000) === '0시간 00분 00초');
+        test('route start clamped', near(routePointAt(-1).lon, CDG.lon));
+        test('route end clamped', near(routePointAt(2).lon, ICN.lon));
+        test('route samples bounded', Array.from({ length: 501 }, (_, index) => routePointAt(index / 500)).every(p => Number.isFinite(p.lat) && Number.isFinite(p.lon) && Math.abs(p.lat) <= 90 && Math.abs(p.lon) <= 180));
+        test('projected route fits map', Array.from({ length: 501 }, (_, index) => project(routePointAt(index / 500))).every(p => p.x >= 470 && p.x <= 845 && p.y >= 25 && p.y <= 195));
+        test('heading finite', [0, .25, .5, .75, 1].every(p => Number.isFinite(headingAt(p))));
+        test('Paris DST support', zonedParts(Date.UTC(2026, 10, 1, 12), 'Europe/Paris').time === '13:00:00');
+
+        const passed = tests.filter((item) => item.pass).length;
+        const result = $('testResult');
+        result.textContent = `SELF-TEST ${passed}/${tests.length} PASS`;
+        result.classList.toggle('failed', passed !== tests.length);
+        result.title = tests.filter((item) => !item.pass).map((item) => item.name).join(', ');
+        window.__TW402_SELF_TEST__ = Object.freeze({ passed, total: tests.length, tests });
+        return window.__TW402_SELF_TEST__;
+      }
+
+      function initialize() {
+        drawMap();
+        $('timeSlider').min = String(DEPARTURE_MS - 60 * 60 * 1000);
+        $('timeSlider').max = String(ARRIVAL_MS + 60 * 60 * 1000);
+        $('timeSlider').value = String(DEPARTURE_MS);
+
+        document.querySelectorAll('[data-preset]').forEach((button) => {
+          button.addEventListener('click', () => usePreset(button.dataset.preset));
+        });
+        $('timeSlider').addEventListener('input', (event) => {
+          mode = 'simulated';
+          simulatedMs = Number(event.target.value);
+          setPressedPreset('');
+          render();
+        });
+
+        runSelfTests();
+        render();
+        setupOfflineApp();
+        window.setInterval(() => render(), 1000);
+
+        window.__flightTracker = Object.freeze({
+          constants: Object.freeze({ DEPARTURE_MS, ARRIVAL_MS, DURATION_MS, ICN, CDG, ROUTE_DISTANCE_KM, ROUTE_WAYPOINTS, ROUTE_GAPS }),
+          slerp, routePointAt, project, splitAntimeridian, progressAt, nearestRouteCity, render,
+          usePreset, setupOfflineApp, zonedParts, formatDuration, runSelfTests,
+          getState: () => ({ mode, timeMs: effectiveTime(), progress: progressAt(effectiveTime()) })
+        });
+      }
+
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initialize, { once: true });
+      else initialize();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,680 @@
+{
+  "flight": "TW402",
+  "callsign": "TWB402",
+  "dateDeparture": "2026-10-04",
+  "airline": "Trinity Airways",
+  "origin": "CDG",
+  "destination": "ICN",
+  "source": {
+    "provider": "FlightAware",
+    "url": "https://www.flightaware.com/live/flight/TWB402/history/20261004/1840Z/LFPG/RKSI/tracklog",
+    "accessedAt": "2026-10-06T03:35:00Z",
+    "method": "Public visible track-log table read via cloud browser, no account or API"
+  },
+  "observation": {
+    "rawRows": 941,
+    "measuredRows": 753,
+    "excludedEstimatedRows": 188,
+    "notes": [
+      "Only ADS-B, MLAT, and Surface and Near-Surface rows retained.",
+      "FlightAware Estimated rows removed; some estimated positions visibly deviated northward before rejoining measured data.",
+      "Connecting measured positions over gaps is interpolation, not observed or operational flightplan.",
+      "Past observed route is not a prediction of the Oct 10 flight.",
+      "Original table timezone EDT (UTC-4)."
+    ]
+  },
+  "description": "Historical coordinates only; estimated source rows excluded. Airport connectors and coverage gaps are geodesic interpolation. Scheduled progress uses constant distance rate, not historical timestamps; this is not live telemetry or a prediction.",
+  "displaySample": [
+    {
+      "lat": 49.0237,
+      "lon": 2.5707,
+      "timestampUtc": "2026-10-04T18:50:57.000Z",
+      "source": "FlightAware ADS-B (LFPY)"
+    },
+    {
+      "lat": 49.0599,
+      "lon": 2.7768,
+      "timestampUtc": "2026-10-04T18:53:46.000Z",
+      "source": "FlightAware ADS-B (POX / LFPT)"
+    },
+    {
+      "lat": 49.1082,
+      "lon": 3.0943,
+      "timestampUtc": "2026-10-04T18:57:20.000Z",
+      "source": "FlightAware ADS-B (LFPZ)"
+    },
+    {
+      "lat": 48.8913,
+      "lon": 3.7671,
+      "timestampUtc": "2026-10-04T19:02:13.000Z",
+      "source": "FlightAware ADS-B (BVA / LFOB)"
+    },
+    {
+      "lat": 48.6677,
+      "lon": 4.5991,
+      "timestampUtc": "2026-10-04T19:07:16.000Z",
+      "source": "FlightAware ADS-B (LFEK)"
+    },
+    {
+      "lat": 48.4216,
+      "lon": 5.5469,
+      "timestampUtc": "2026-10-04T19:12:22.000Z",
+      "source": "FlightAware ADS-B (LUX / ELLX)"
+    },
+    {
+      "lat": 48.1173,
+      "lon": 6.4795,
+      "timestampUtc": "2026-10-04T19:17:22.000Z",
+      "source": "FlightAware ADS-B (LOIX)"
+    },
+    {
+      "lat": 47.8803,
+      "lon": 7.5391,
+      "timestampUtc": "2026-10-04T19:22:29.000Z",
+      "source": "FlightAware ADS-B (BRN / LSZB)"
+    },
+    {
+      "lat": 47.7654,
+      "lon": 8.6202,
+      "timestampUtc": "2026-10-04T19:27:29.000Z",
+      "source": "FlightAware ADS-B (EDMB)"
+    },
+    {
+      "lat": 47.6429,
+      "lon": 9.677,
+      "timestampUtc": "2026-10-04T19:32:29.000Z",
+      "source": "FlightAware ADS-B (FDH / EDNY)"
+    },
+    {
+      "lat": 47.548,
+      "lon": 10.7088,
+      "timestampUtc": "2026-10-04T19:37:28.000Z",
+      "source": "FlightAware ADS-B (ZRH / LSZH)"
+    },
+    {
+      "lat": 47.4673,
+      "lon": 11.7413,
+      "timestampUtc": "2026-10-04T19:42:29.000Z",
+      "source": "FlightAware ADS-B (MUC / EDDM)"
+    },
+    {
+      "lat": 47.3574,
+      "lon": 12.7516,
+      "timestampUtc": "2026-10-04T19:47:31.000Z",
+      "source": "FlightAware ADS-B (LOWZ)"
+    },
+    {
+      "lat": 47.2412,
+      "lon": 13.7459,
+      "timestampUtc": "2026-10-04T19:52:31.000Z",
+      "source": "FlightAware ADS-B (VIE / LOWW)"
+    },
+    {
+      "lat": 47.1169,
+      "lon": 14.7319,
+      "timestampUtc": "2026-10-04T19:57:31.000Z",
+      "source": "FlightAware ADS-B (BTS / LZIB)"
+    },
+    {
+      "lat": 46.9843,
+      "lon": 15.7104,
+      "timestampUtc": "2026-10-04T20:02:33.000Z",
+      "source": "FlightAware ADS-B (LIPI)"
+    },
+    {
+      "lat": 46.8204,
+      "lon": 16.6705,
+      "timestampUtc": "2026-10-04T20:07:35.000Z",
+      "source": "FlightAware ADS-B (PEV / LHPP)"
+    },
+    {
+      "lat": 46.6316,
+      "lon": 17.6063,
+      "timestampUtc": "2026-10-04T20:12:36.000Z",
+      "source": "FlightAware ADS-B (VIE / LOWW)"
+    },
+    {
+      "lat": 46.4361,
+      "lon": 18.5311,
+      "timestampUtc": "2026-10-04T20:17:36.000Z",
+      "source": "FlightAware ADS-B (LHBS)"
+    },
+    {
+      "lat": 46.2314,
+      "lon": 19.4574,
+      "timestampUtc": "2026-10-04T20:22:37.000Z",
+      "source": "FlightAware ADS-B (TSR / LRTR)"
+    },
+    {
+      "lat": 46.0171,
+      "lon": 20.3865,
+      "timestampUtc": "2026-10-04T20:27:38.000Z",
+      "source": "FlightAware ADS-B (OMR / LROD)"
+    },
+    {
+      "lat": 45.7958,
+      "lon": 21.3061,
+      "timestampUtc": "2026-10-04T20:32:40.000Z",
+      "source": "FlightAware ADS-B (BEG / LYBE)"
+    },
+    {
+      "lat": 45.5643,
+      "lon": 22.2303,
+      "timestampUtc": "2026-10-04T20:37:43.000Z",
+      "source": "FlightAware ADS-B (QBG / LYPA)"
+    },
+    {
+      "lat": 45.3235,
+      "lon": 23.1542,
+      "timestampUtc": "2026-10-04T20:42:46.000Z",
+      "source": "FlightAware ADS-B (BJY / LYBT)"
+    },
+    {
+      "lat": 45.0751,
+      "lon": 24.0701,
+      "timestampUtc": "2026-10-04T20:47:49.000Z",
+      "source": "FlightAware ADS-B (CLJ / LRCL)"
+    },
+    {
+      "lat": 44.8038,
+      "lon": 25.0326,
+      "timestampUtc": "2026-10-04T20:53:11.000Z",
+      "source": "FlightAware ADS-B (LBPL)"
+    },
+    {
+      "lat": 44.4917,
+      "lon": 26.094,
+      "timestampUtc": "2026-10-04T20:59:15.000Z",
+      "source": "FlightAware MLAT (10 sites)"
+    },
+    {
+      "lat": 44.2232,
+      "lon": 26.9678,
+      "timestampUtc": "2026-10-04T21:04:20.000Z",
+      "source": "FlightAware MLAT (10 sites)"
+    },
+    {
+      "lat": 43.9402,
+      "lon": 27.8597,
+      "timestampUtc": "2026-10-04T21:09:35.000Z",
+      "source": "FlightAware MLAT (9 sites)"
+    },
+    {
+      "lat": 43.6407,
+      "lon": 28.6923,
+      "timestampUtc": "2026-10-04T21:14:39.000Z",
+      "source": "FlightAware MLAT (8 sites)"
+    },
+    {
+      "lat": 43.2632,
+      "lon": 29.5021,
+      "timestampUtc": "2026-10-04T21:19:52.000Z",
+      "source": "FlightAware MLAT (7 sites)"
+    },
+    {
+      "lat": 42.8869,
+      "lon": 30.2864,
+      "timestampUtc": "2026-10-04T21:25:01.000Z",
+      "source": "FlightAware MLAT (6 sites)"
+    },
+    {
+      "lat": 42.6854,
+      "lon": 31.1413,
+      "timestampUtc": "2026-10-04T21:30:05.000Z",
+      "source": "FlightAware MLAT (5 sites)"
+    },
+    {
+      "lat": 42.6372,
+      "lon": 32.1089,
+      "timestampUtc": "2026-10-04T21:35:33.000Z",
+      "source": "FlightAware MLAT (4 sites)"
+    },
+    {
+      "lat": 42.5759,
+      "lon": 32.9957,
+      "timestampUtc": "2026-10-04T21:40:34.000Z",
+      "source": "FlightAware MLAT (4 sites)"
+    },
+    {
+      "lat": 41.6646,
+      "lon": 44.6693,
+      "timestampUtc": "2026-10-04T22:46:09.000Z",
+      "source": "FlightAware MLAT (5 sites)"
+    },
+    {
+      "lat": 41.636,
+      "lon": 44.7561,
+      "timestampUtc": "2026-10-04T22:46:39.000Z",
+      "source": "FlightAware MLAT (5 sites)"
+    },
+    {
+      "lat": 41.2504,
+      "lon": 46.2882,
+      "timestampUtc": "2026-10-04T22:55:10.000Z",
+      "source": "FlightAware ADS-B (GNJ / UBBG)"
+    },
+    {
+      "lat": 41.1728,
+      "lon": 47.2644,
+      "timestampUtc": "2026-10-04T23:00:11.000Z",
+      "source": "FlightAware ADS-B (GNJ / UBBG)"
+    },
+    {
+      "lat": 41.2168,
+      "lon": 48.3657,
+      "timestampUtc": "2026-10-04T23:05:56.000Z",
+      "source": "FlightAware ADS-B (GNJ / UBBG)"
+    },
+    {
+      "lat": 41.4669,
+      "lon": 49.2916,
+      "timestampUtc": "2026-10-04T23:10:57.000Z",
+      "source": "FlightAware ADS-B (GNJ / UBBG)"
+    },
+    {
+      "lat": 41.7079,
+      "lon": 50.2193,
+      "timestampUtc": "2026-10-04T23:16:02.000Z",
+      "source": "FlightAware ADS-B (GYD / UBBB)"
+    },
+    {
+      "lat": 42.0193,
+      "lon": 51.4548,
+      "timestampUtc": "2026-10-04T23:22:45.000Z",
+      "source": "FlightAware ADS-B (GYD / UBBB)"
+    },
+    {
+      "lat": 42.2688,
+      "lon": 52.3809,
+      "timestampUtc": "2026-10-04T23:27:46.000Z",
+      "source": "FlightAware ADS-B (GYD / UBBB)"
+    },
+    {
+      "lat": 42.4653,
+      "lon": 53.1352,
+      "timestampUtc": "2026-10-04T23:31:46.000Z",
+      "source": "FlightAware ADS-B (GYD / UBBB)"
+    },
+    {
+      "lat": 44.2565,
+      "lon": 66.6364,
+      "timestampUtc": "2026-10-05T00:38:35.000Z",
+      "source": "FlightAware ADS-B (CIT / UAII)"
+    },
+    {
+      "lat": 44.2544,
+      "lon": 67.1873,
+      "timestampUtc": "2026-10-05T00:41:14.000Z",
+      "source": "FlightAware ADS-B (CIT / UAII)"
+    },
+    {
+      "lat": 44.2368,
+      "lon": 68.596,
+      "timestampUtc": "2026-10-05T00:48:06.000Z",
+      "source": "FlightAware ADS-B (CIT / UAII)"
+    },
+    {
+      "lat": 44.2043,
+      "lon": 69.9266,
+      "timestampUtc": "2026-10-05T00:54:37.000Z",
+      "source": "FlightAware ADS-B (CIT / UAII)"
+    },
+    {
+      "lat": 44.144,
+      "lon": 71.546,
+      "timestampUtc": "2026-10-05T01:02:41.000Z",
+      "source": "FlightAware ADS-B (CIT / UAII)"
+    },
+    {
+      "lat": 44.0852,
+      "lon": 72.7324,
+      "timestampUtc": "2026-10-05T01:08:31.000Z",
+      "source": "FlightAware ADS-B (ALA / UAAA)"
+    },
+    {
+      "lat": 44.0164,
+      "lon": 73.8789,
+      "timestampUtc": "2026-10-05T01:14:16.000Z",
+      "source": "FlightAware ADS-B (ALA / UAAA)"
+    },
+    {
+      "lat": 43.9491,
+      "lon": 74.8993,
+      "timestampUtc": "2026-10-05T01:19:23.000Z",
+      "source": "FlightAware ADS-B (BSZ / UCFM)"
+    },
+    {
+      "lat": 43.8934,
+      "lon": 75.9017,
+      "timestampUtc": "2026-10-05T01:24:27.000Z",
+      "source": "FlightAware ADS-B (ALA / UAAA)"
+    },
+    {
+      "lat": 43.832,
+      "lon": 76.8593,
+      "timestampUtc": "2026-10-05T01:29:29.000Z",
+      "source": "FlightAware ADS-B (ALA / UAAA)"
+    },
+    {
+      "lat": 43.763,
+      "lon": 77.8118,
+      "timestampUtc": "2026-10-05T01:34:38.000Z",
+      "source": "FlightAware ADS-B (ALA / UAAA)"
+    },
+    {
+      "lat": 43.6803,
+      "lon": 78.8291,
+      "timestampUtc": "2026-10-05T01:40:02.000Z",
+      "source": "FlightAware ADS-B (ALA / UAAA)"
+    },
+    {
+      "lat": 43.5933,
+      "lon": 79.7898,
+      "timestampUtc": "2026-10-05T01:45:04.000Z",
+      "source": "FlightAware ADS-B (ALA / UAAA)"
+    },
+    {
+      "lat": 43.4898,
+      "lon": 80.863,
+      "timestampUtc": "2026-10-05T01:50:44.000Z",
+      "source": "FlightAware ADS-B (ALA / UAAA)"
+    },
+    {
+      "lat": 43.4395,
+      "lon": 81.3759,
+      "timestampUtc": "2026-10-05T01:53:33.000Z",
+      "source": "FlightAware ADS-B (ALA / UAAA)"
+    },
+    {
+      "lat": 41.4569,
+      "lon": 103.4847,
+      "timestampUtc": "2026-10-05T04:05:42.000Z",
+      "source": "FlightAware ADS-B (ZMKB)"
+    },
+    {
+      "lat": 41.3158,
+      "lon": 103.9712,
+      "timestampUtc": "2026-10-05T04:08:40.000Z",
+      "source": "FlightAware ADS-B (ZMKB)"
+    },
+    {
+      "lat": 41.0397,
+      "lon": 104.8774,
+      "timestampUtc": "2026-10-05T04:14:13.000Z",
+      "source": "FlightAware ADS-B (ZMKB)"
+    },
+    {
+      "lat": 40.7597,
+      "lon": 105.6944,
+      "timestampUtc": "2026-10-05T04:19:14.000Z",
+      "source": "FlightAware ADS-B (ZMKB)"
+    },
+    {
+      "lat": 40.4135,
+      "lon": 106.6726,
+      "timestampUtc": "2026-10-05T04:25:16.000Z",
+      "source": "FlightAware ADS-B (ZMKB)"
+    },
+    {
+      "lat": 40.4157,
+      "lon": 107.8447,
+      "timestampUtc": "2026-10-05T04:32:10.000Z",
+      "source": "FlightAware ADS-B (ZMKB)"
+    },
+    {
+      "lat": 40.5306,
+      "lon": 108.8619,
+      "timestampUtc": "2026-10-05T04:38:16.000Z",
+      "source": "FlightAware ADS-B (ZMKB)"
+    },
+    {
+      "lat": 40.6236,
+      "lon": 109.7517,
+      "timestampUtc": "2026-10-05T04:43:51.000Z",
+      "source": "FlightAware ADS-B (ZMKB)"
+    },
+    {
+      "lat": 40.636,
+      "lon": 111.2133,
+      "timestampUtc": "2026-10-05T04:52:34.000Z",
+      "source": "FlightAware ADS-B (HET / ZBHH)"
+    },
+    {
+      "lat": 40.6142,
+      "lon": 112.3411,
+      "timestampUtc": "2026-10-05T04:58:58.000Z",
+      "source": "FlightAware ADS-B (HET / ZBHH)"
+    },
+    {
+      "lat": 40.4815,
+      "lon": 114.5631,
+      "timestampUtc": "2026-10-05T05:11:30.000Z",
+      "source": "FlightAware ADS-B (SJW / ZBSJ)"
+    },
+    {
+      "lat": 40.4732,
+      "lon": 114.7393,
+      "timestampUtc": "2026-10-05T05:12:29.000Z",
+      "source": "FlightAware ADS-B (SJW / ZBSJ)"
+    },
+    {
+      "lat": 40.4165,
+      "lon": 115.7409,
+      "timestampUtc": "2026-10-05T05:18:12.000Z",
+      "source": "FlightAware ADS-B (PEK / ZBAA)"
+    },
+    {
+      "lat": 40.2222,
+      "lon": 116.7623,
+      "timestampUtc": "2026-10-05T05:24:27.000Z",
+      "source": "FlightAware ADS-B (PEK / ZBAA)"
+    },
+    {
+      "lat": 39.6599,
+      "lon": 116.9581,
+      "timestampUtc": "2026-10-05T05:28:49.000Z",
+      "source": "FlightAware ADS-B (PEK / ZBAA)"
+    },
+    {
+      "lat": 39.2818,
+      "lon": 117.7715,
+      "timestampUtc": "2026-10-05T05:34:09.000Z",
+      "source": "FlightAware ADS-B (PEK / ZBAA)"
+    },
+    {
+      "lat": 38.9354,
+      "lon": 118.8711,
+      "timestampUtc": "2026-10-05T05:41:05.000Z",
+      "source": "FlightAware ADS-B (PEK / ZBAA)"
+    },
+    {
+      "lat": 38.9224,
+      "lon": 118.9497,
+      "timestampUtc": "2026-10-05T05:41:35.000Z",
+      "source": "FlightAware ADS-B (PEK / ZBAA)"
+    },
+    {
+      "lat": 37.4885,
+      "lon": 123.2901,
+      "timestampUtc": "2026-10-05T06:09:48.000Z",
+      "source": "FlightAware ADS-B (ICN / RKSI)"
+    },
+    {
+      "lat": 37.0946,
+      "lon": 123.9729,
+      "timestampUtc": "2026-10-05T06:14:36.000Z",
+      "source": "FlightAware ADS-B (ICN / RKSI)"
+    },
+    {
+      "lat": 37.1434,
+      "lon": 124.8616,
+      "timestampUtc": "2026-10-05T06:19:37.000Z",
+      "source": "FlightAware ADS-B (SWU / RKSW)"
+    },
+    {
+      "lat": 37.1732,
+      "lon": 125.5847,
+      "timestampUtc": "2026-10-05T06:24:32.000Z",
+      "source": "FlightAware ADS-B (GMP / RKSS)"
+    },
+    {
+      "lat": 37.1118,
+      "lon": 126.1328,
+      "timestampUtc": "2026-10-05T06:29:15.000Z",
+      "source": "FlightAware ADS-B (ICN / RKSI)"
+    },
+    {
+      "lat": 37.1822,
+      "lon": 126.5397,
+      "timestampUtc": "2026-10-05T06:34:04.000Z",
+      "source": "FlightAware ADS-B (OSN / RKSO)"
+    },
+    {
+      "lat": 37.3266,
+      "lon": 126.5397,
+      "timestampUtc": "2026-10-05T06:37:52.000Z",
+      "source": "FlightAware ADS-B (ICN / RKSI)"
+    },
+    {
+      "lat": 37.4284,
+      "lon": 126.4493,
+      "timestampUtc": "2026-10-05T06:41:04.000Z",
+      "source": "FlightAware ADS-B (ICN / RKSI)"
+    },
+    {
+      "lat": 37.4458,
+      "lon": 126.4339,
+      "timestampUtc": "2026-10-05T06:41:40.000Z",
+      "source": "FlightAware ADS-B (ICN / RKSI)"
+    }
+  ],
+  "coverageGaps": [
+    {
+      "before": {
+        "timeEDT": "Sun 05:40:34 PM",
+        "lat": 42.5759,
+        "lon": 32.9957,
+        "altitudeFt": 35002,
+        "source": "FlightAware MLAT (4 sites)",
+        "timestampUtc": "2026-10-04T21:40:34.000Z"
+      },
+      "after": {
+        "timeEDT": "Sun 06:46:09 PM",
+        "lat": 41.6646,
+        "lon": 44.6693,
+        "altitudeFt": 35000,
+        "source": "FlightAware MLAT (5 sites)",
+        "timestampUtc": "2026-10-04T22:46:09.000Z"
+      },
+      "durationSeconds": 3935,
+      "estimatedPointCount": 41
+    },
+    {
+      "before": {
+        "timeEDT": "Sun 06:46:09 PM",
+        "lat": 41.6646,
+        "lon": 44.6693,
+        "altitudeFt": 35000,
+        "source": "FlightAware MLAT (5 sites)",
+        "timestampUtc": "2026-10-04T22:46:09.000Z"
+      },
+      "after": {
+        "timeEDT": "Sun 06:46:39 PM",
+        "lat": 41.636,
+        "lon": 44.7561,
+        "altitudeFt": 35000,
+        "source": "FlightAware MLAT (5 sites)",
+        "timestampUtc": "2026-10-04T22:46:39.000Z"
+      },
+      "durationSeconds": 30,
+      "estimatedPointCount": 1
+    },
+    {
+      "before": {
+        "timeEDT": "Sun 07:31:46 PM",
+        "lat": 42.4653,
+        "lon": 53.1352,
+        "altitudeFt": 35000,
+        "source": "FlightAware ADS-B (GYD / UBBB)",
+        "timestampUtc": "2026-10-04T23:31:46.000Z"
+      },
+      "after": {
+        "timeEDT": "Sun 08:38:35 PM",
+        "lat": 44.2565,
+        "lon": 66.6364,
+        "altitudeFt": 35000,
+        "source": "FlightAware ADS-B (CIT / UAII)",
+        "timestampUtc": "2026-10-05T00:38:35.000Z"
+      },
+      "durationSeconds": 4009,
+      "estimatedPointCount": 41
+    },
+    {
+      "before": {
+        "timeEDT": "Sun 09:53:33 PM",
+        "lat": 43.4395,
+        "lon": 81.3759,
+        "altitudeFt": 37125,
+        "source": "FlightAware ADS-B (ALA / UAAA)",
+        "timestampUtc": "2026-10-05T01:53:33.000Z"
+      },
+      "after": {
+        "timeEDT": "Mon 12:05:42 AM",
+        "lat": 41.4569,
+        "lon": 103.4847,
+        "altitudeFt": 37100,
+        "source": "FlightAware ADS-B (ZMKB)",
+        "timestampUtc": "2026-10-05T04:05:42.000Z"
+      },
+      "durationSeconds": 7929,
+      "estimatedPointCount": 82
+    },
+    {
+      "before": {
+        "timeEDT": "Mon 12:58:58 AM",
+        "lat": 40.6142,
+        "lon": 112.3411,
+        "altitudeFt": 33100,
+        "source": "FlightAware ADS-B (HET / ZBHH)",
+        "timestampUtc": "2026-10-05T04:58:58.000Z"
+      },
+      "after": {
+        "timeEDT": "Mon 01:11:30 AM",
+        "lat": 40.4815,
+        "lon": 114.5631,
+        "altitudeFt": 33100,
+        "source": "FlightAware ADS-B (SJW / ZBSJ)",
+        "timestampUtc": "2026-10-05T05:11:30.000Z"
+      },
+      "durationSeconds": 752,
+      "estimatedPointCount": 7
+    },
+    {
+      "before": {
+        "timeEDT": "Mon 01:41:35 AM",
+        "lat": 38.9224,
+        "lon": 118.9497,
+        "altitudeFt": 29100,
+        "source": "FlightAware ADS-B (PEK / ZBAA)",
+        "timestampUtc": "2026-10-05T05:41:35.000Z"
+      },
+      "after": {
+        "timeEDT": "Mon 02:09:48 AM",
+        "lat": 37.4885,
+        "lon": 123.2901,
+        "altitudeFt": 26600,
+        "source": "FlightAware ADS-B (ICN / RKSI)",
+        "timestampUtc": "2026-10-05T06:09:48.000Z"
+      },
+      "durationSeconds": 1693,
+      "estimatedPointCount": 16
+    }
+  ],
+  "recentCrossCheck": {
+    "dateDeparture": "2026-10-02",
+    "url": "https://www.flightaware.com/live/flight/TWB402/history/20261002/1840Z/LFPG/RKSI/tracklog",
+    "measuredRows": 703,
+    "excludedEstimatedRows": 207,
+    "finding": "Same broad southern corridor; October 4 remains the only coordinate source for the rendered map."
+  }
+}
