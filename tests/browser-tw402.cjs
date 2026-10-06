@@ -34,6 +34,17 @@ function capturePageErrors(context, errors) {
   context.on('page', watch);
   for (const page of context.pages()) watch(page);
 }
+async function assertOfflineUsable(page) {
+  // navigator.onLine is a browser/OS hint, not proof of internet reachability.
+  // A blocked, uncached fetch proves emulation really cuts off the network.
+  const networkBlocked = await page.evaluate(async () => {
+    try { await fetch('./offline-network-probe-' + Date.now(), { cache: 'no-store' }); return false; }
+    catch { return true; }
+  });
+  assert.equal(networkBlocked, true, 'uncached network must be unreachable');
+  assert.equal(await page.locator('#offlinePill').getAttribute('data-state'), 'ready');
+  assert.equal(await page.locator('#flightTitle').innerText(), 'TW0402');
+}
 async function tests(browser, base, label) {
   const context = await browser.newContext({ viewport:{width:390,height:844}, deviceScaleFactor:2, isMobile:true, hasTouch:true, locale:'ko-KR', timezoneId:'America/Los_Angeles', reducedMotion:'reduce' });
   const errors = [];
@@ -98,7 +109,7 @@ async function tests(browser, base, label) {
     assert.equal(await page.locator('#flightTitle').innerText(), 'TW0402');
     await page.goto(base + 'tw402/TW402-flight-tracker.html?source=pwa');
     await page.waitForFunction(() => document.getElementById('offlinePill').dataset.state === 'ready');
-    assert.equal(await page.locator('#offlinePill').innerText(), '오프라인 작동 중');
+    await assertOfflineUsable(page);
     await page.locator('#simulator summary').click();
     await page.locator('[data-preset="50"]').click();
     assert.equal(await page.locator('#progressValue').innerText(), '50.0');
@@ -140,7 +151,7 @@ async function tests(browser, base, label) {
       await page.locator('#simulator summary').click();
       await page.locator('[data-preset="50"]').click();
       assert.equal(await page.locator('#progressValue').innerText(), '50.0');
-      assert.equal(await page.locator('#offlinePill').innerText(), '오프라인 작동 중');
+      await assertOfflineUsable(page);
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth), true);
       await page.screenshot({path:path.join(artifacts, `${label}-desktop-offline.png`),fullPage:true});
     } finally { await desktop.close(); }
@@ -173,7 +184,7 @@ async function persistentRestart(base, label) {
       await page.waitForFunction(() => window.__TW402_SELF_TEST__?.passed === 39);
       await page.waitForFunction(() => document.getElementById('offlinePill').dataset.state === 'ready', null, {timeout:45000});
       assert.equal(await page.locator('#flightTitle').innerText(), 'TW0402');
-      assert.equal(await page.locator('#offlinePill').innerText(), '오프라인 작동 중');
+      await assertOfflineUsable(page);
       assert.equal(await page.evaluate(() => navigator.serviceWorker.controller.scriptURL.includes('/tw402/sw.js')), true);
       await page.locator('#simulator summary').click();
       await page.locator('[data-preset="50"]').click();
