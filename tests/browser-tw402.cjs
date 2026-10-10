@@ -158,11 +158,73 @@ async function tests(browser, base, label) {
   });
   await check(`${label}: no uncaught browser errors in any page`, async () => assert.deepEqual(errors, []));
 }
+async function welcomeChecks(browser, base, label) {
+  const context = await browser.newContext({ viewport:{width:390,height:844}, deviceScaleFactor:2, isMobile:true, hasTouch:true, locale:'ko-KR', timezoneId:'America/Los_Angeles', reducedMotion:'reduce' });
+  const page = await context.newPage();
+  const start = Date.parse('2026-10-11T06:30:00Z');
+  const errors = [];
+  capturePageErrors(context, errors);
+  try {
+    await page.clock.setFixedTime(start - 1);
+    await page.goto(base + 'tw402/TW402-flight-tracker.html');
+    await page.waitForFunction(() => navigator.serviceWorker.controller?.scriptURL.includes('/tw402/sw.js'));
+    await check(`${label}: welcome exact threshold and one-second automatic update`, async () => {
+      assert.equal(await page.locator('#welcomeHome').isVisible(), false);
+      await page.clock.setFixedTime(start);
+      await page.evaluate(() => window.__flightTracker.render());
+      assert.equal(await page.locator('#welcomeHome').isVisible(), true);
+      assert.equal(await page.locator('#welcomeTitle').innerText(), '선영 사랑해\n웰컴홈!');
+      assert.equal(await page.locator('#welcomePreview').isVisible(), false);
+      await page.clock.setFixedTime(start + 1);
+      await page.waitForFunction(() => !document.getElementById('welcomeHome').hidden);
+      assert.equal(await page.locator('#welcomeHome').isVisible(), true);
+    });
+    await check(`${label}: welcome mobile widths, desktop, and reduced motion`, async () => {
+      for (const width of [320,390,430,768,1440]) {
+        await page.setViewportSize({width,height:844});
+        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+        const box = await page.locator('#welcomeHome').boundingBox();
+        assert(box.x >= 0 && box.x + box.width <= width);
+        assert.equal(await page.locator('.welcome-heart').evaluate(e => getComputedStyle(e).animationName), 'none');
+      }
+      await page.setViewportSize({width:390,height:844});
+      await page.screenshot({path:path.join(artifacts, `${label}-welcome-mobile.png`),fullPage:false});
+      await page.emulateMedia({reducedMotion:'no-preference'});
+      assert.equal(await page.locator('.welcome-heart').evaluate(e => getComputedStyle(e).animationIterationCount), '2');
+      await page.emulateMedia({reducedMotion:'reduce'});
+    });
+    await check(`${label}: welcome survives offline reload and after-arrival time`, async () => {
+      await context.setOffline(true);
+      await page.reload();
+      await page.waitForFunction(() => document.getElementById('offlinePill').dataset.state === 'ready');
+      assert.equal(await page.locator('#welcomeHome').isVisible(), true);
+      await page.clock.setFixedTime(start + 600000);
+      await page.evaluate(() => window.dispatchEvent(new Event('pageshow')));
+      assert.equal(await page.locator('#welcomeHome').isVisible(), true);
+      assert.equal(await page.locator('#phaseTitle').innerText(), '예정 도착 시각이 지났어요');
+      await page.reload();
+      assert.equal(await page.locator('#welcomeHome').isVisible(), true);
+    });
+    await check(`${label}: reversible welcome simulation and return to device time`, async () => {
+      await page.clock.setFixedTime(start - 1000);
+      await page.locator('#simulator summary').click();
+      await page.locator('[data-preset=welcome]').click();
+      assert.equal(await page.locator('#welcomePreview').isVisible(), true);
+      await page.locator('[data-preset=before]').click();
+      assert.equal(await page.locator('#welcomeHome').isVisible(), false);
+      await page.locator('[data-preset=welcome]').click();
+      await page.locator('#welcomeDeviceTime').click();
+      assert.equal(await page.locator('#welcomeHome').isVisible(), false);
+      assert.equal(await page.locator('#mapMode').innerText(), 'DEVICE TIME');
+      assert.deepEqual(errors, []);
+    });
+  } finally { await context.close(); }
+}
 async function persistentRestart(base, label) {
   await check(`${label}: offline reload after full browser process restart`, async () => {
     const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'tw402-browser-profile-'));
     const errors = [];
-    const launchOptions = { headless:true, viewport:{width:390,height:844}, deviceScaleFactor:2, isMobile:true, hasTouch:true, locale:'ko-KR', timezoneId:'America/Los_Angeles', reducedMotion:'reduce' };
+    const launchOptions = { headless:true, ...(process.env.CHROMIUM_PATH ? { executablePath:process.env.CHROMIUM_PATH } : {}), viewport:{width:390,height:844}, deviceScaleFactor:2, isMobile:true, hasTouch:true, locale:'ko-KR', timezoneId:'America/Los_Angeles', reducedMotion:'reduce' };
     let context;
     try {
       context = await chromium.launchPersistentContext(profile, launchOptions);
@@ -201,8 +263,9 @@ async function persistentRestart(base, label) {
   let server, browser;
   try {
     server = await startServer();
-    browser = await chromium.launch({ headless:true });
+    browser = await chromium.launch({ headless:true, ...(process.env.CHROMIUM_PATH ? { executablePath:process.env.CHROMIUM_PATH } : {}) });
     await tests(browser, 'http://127.0.0.1:4173/', 'local');
+    await welcomeChecks(browser, 'http://127.0.0.1:4173/', 'local');
     await persistentRestart('http://127.0.0.1:4173/', 'local');
     await check('standalone file works without a server', async () => {
       const c = await browser.newContext(); const p = await c.newPage();
@@ -228,6 +291,7 @@ async function persistentRestart(base, label) {
       assert(verified, 'Pages did not serve this commit before verification window ended');
       report.push({name:'published HTML matches local SHA256',pass:true,sha256:expected});
       await tests(browser, base, 'live');
+      await welcomeChecks(browser, base, 'live');
       await persistentRestart(base, 'live');
     }
     fs.writeFileSync(path.join(artifacts,'browser-test-results.json'), JSON.stringify({passed:report.length,tests:report},null,2));
@@ -237,3 +301,4 @@ async function persistentRestart(base, label) {
     console.error(e); process.exitCode=1;
   } finally { if(browser) await browser.close(); if(server) await new Promise(r=>server.close(r)); }
 })();
+

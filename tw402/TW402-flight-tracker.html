@@ -155,6 +155,94 @@
       box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,.025);
     }
 
+    /* A self-contained welcome: no network, fonts, images or sound required. */
+    .welcome[hidden] { display: none; }
+    .welcome {
+      grid-area: welcome;
+      position: relative;
+      isolation: isolate;
+      overflow: hidden;
+      margin: 0 0 16px;
+      padding: 34px 20px 26px;
+      border: 1px solid rgba(242, 188, 167, .36);
+      border-radius: 26px;
+      text-align: center;
+      color: #fff4ea;
+      background:
+        radial-gradient(ellipse at 50% 10%, rgba(198, 97, 120, .24), transparent 65%),
+        linear-gradient(145deg, #33212f, #151a2b 65%, #152731);
+      box-shadow: 0 18px 60px rgba(0, 0, 0, .3), inset 0 1px 0 rgba(255, 228, 206, .12);
+    }
+    .welcome::before {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      inset: 11px;
+      border: 1px solid rgba(245, 201, 170, .12);
+      border-radius: 18px;
+      pointer-events: none;
+    }
+    .welcome-kicker {
+      margin: 0;
+      color: #e5bea6;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .26em;
+    }
+    .welcome-heart {
+      display: block;
+      width: 68px;
+      height: 68px;
+      margin: 21px auto 17px;
+      overflow: visible;
+      filter: drop-shadow(0 0 19px rgba(242, 146, 167, .25));
+    }
+    .welcome-title {
+      margin: 0;
+      font-family: "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      font-size: clamp(28px, 8vw, 38px);
+      font-weight: 750;
+      line-height: 1.45;
+      letter-spacing: -.045em;
+      word-break: keep-all;
+    }
+    .welcome-title span { display: block; }
+    .welcome-title span:first-child { color: #ffd7d9; }
+    .welcome-title span:last-child { font-weight: 450; color: #fff0dc; }
+    .welcome-route {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin: 24px 0 16px;
+      color: #d9bba8;
+      font-size: 9px;
+      font-weight: 650;
+      letter-spacing: .18em;
+    }
+    .welcome-route i { width: 54px; height: 1px; background: linear-gradient(90deg, transparent, #dcad97, transparent); }
+    .welcome-timing { margin: 0; color: #d5c1c7; font-size: 11px; line-height: 1.7; }
+    .welcome-preview { margin: 12px 0 0; color: #f8cf8f; font-size: 10px; }
+    .welcome-preview[hidden] { display: none; }
+    .welcome-preview button {
+      min-height: 44px;
+      margin: 5px 0 0;
+      padding: 0 15px;
+      border: 1px solid rgba(248, 207, 143, .3);
+      border-radius: 999px;
+      color: #ffe1b1;
+      background: rgba(248, 207, 143, .07);
+      cursor: pointer;
+    }
+    .welcome-preview button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
+    .preset[data-preset="welcome"] { grid-column: 1 / -1; color: #f7c4c9; border-color: rgba(247, 196, 201, .25); }
+    @media (prefers-reduced-motion: no-preference) {
+      .welcome:not([hidden]) { animation: welcome-in .8s ease-out both; }
+      .welcome-heart { animation: welcome-heart 3s ease-in-out 2; }
+    }
+    @keyframes welcome-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+    @keyframes welcome-heart { 50% { transform: scale(1.06); } }
+
     .hero {
       padding: 20px 18px 18px;
     }
@@ -690,6 +778,7 @@
         grid-template-columns: minmax(260px, .82fr) minmax(330px, 1.18fr);
         grid-template-areas:
           "masthead masthead"
+          "welcome welcome"
           "hero route-label"
           "hero map"
           "instrument-label instrument-label"
@@ -806,6 +895,23 @@
       </div>
       <div class="offline-pill" id="offlinePill" data-state="checking">오프라인 확인 중</div>
     </header>
+
+    <section class="welcome" id="welcomeHome" aria-labelledby="welcomeTitle" hidden>
+      <p class="welcome-kicker">A LITTLE LOVE, A LONG WAY HOME</p>
+      <svg class="welcome-heart" viewBox="0 0 80 80" aria-hidden="true">
+        <defs><linearGradient id="welcomeRose" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffe0cf"/><stop offset="1" stop-color="#e996ad"/></linearGradient></defs>
+        <path d="M40 66C33 59 10 45 10 27C10 10 32 7 40 23C48 7 70 10 70 27C70 45 47 59 40 66Z" fill="url(#welcomeRose)"/>
+        <path d="M18 26C18 19 24 16 29 18" fill="none" stroke="#fff3e5" stroke-width="2" stroke-linecap="round" opacity=".7"/>
+        <path d="M71 8v8m-4-4h8M8 52v6m-3-3h6" stroke="#eed2ad" stroke-width="1.3" stroke-linecap="round"/>
+      </svg>
+      <h2 class="welcome-title" id="welcomeTitle"><span>선영 사랑해</span> <span>웰컴홈!</span></h2>
+      <div class="welcome-route" aria-hidden="true"><span>PARIS</span><i></i><span>INCHEON</span></div>
+      <p class="welcome-timing">10월 11일 15:40 KST 도착 예정 · 일정 기준</p>
+      <div class="welcome-preview" id="welcomePreview" hidden>
+        시뮬레이션 미리보기<br>
+        <button type="button" id="welcomeDeviceTime">기기 시각으로 돌아가기</button>
+      </div>
+    </section>
 
     <section class="panel hero" aria-labelledby="flightTitle">
       <div class="eyebrow-row">
@@ -957,6 +1063,7 @@
           <button class="preset" type="button" data-preset="50" aria-pressed="false">50%</button>
           <button class="preset" type="button" data-preset="75" aria-pressed="false">75%</button>
           <button class="preset" type="button" data-preset="after" aria-pressed="false">도착 후</button>
+          <button class="preset" type="button" data-preset="welcome" aria-pressed="false">도착 10분 전 · 웰컴홈 미리보기</button>
         </div>
         <div class="slider-wrap">
           <label for="timeSlider" class="instrument-label">직접 이동</label>
@@ -1005,6 +1112,7 @@
       const DEPARTURE_MS = Date.parse('2026-10-10T18:30:00Z');
       const ARRIVAL_MS = Date.parse('2026-10-11T06:40:00Z');
       const DURATION_MS = ARRIVAL_MS - DEPARTURE_MS;
+      const WELCOME_START_MS = ARRIVAL_MS - 10 * 60 * 1000;
       const ICN = Object.freeze({ lat: 37.4602, lon: 126.4407 });
       const CDG = Object.freeze({ lat: 49.0097, lon: 2.5479 });
       const MAP = Object.freeze({ width: 1000, height: 500, scale: 178 });
@@ -1848,7 +1956,16 @@
         return mode === 'device' ? Date.now() : simulatedMs;
       }
 
+      function renderWelcome(timeMs) {
+        // The same device/simulated clock drives the tracker and this message.
+        // No persisted flag: reloading offline or returning to an earlier preview
+        // always recomputes the correct state. Keep the greeting after arrival.
+        $('welcomeHome').hidden = timeMs < WELCOME_START_MS;
+        $('welcomePreview').hidden = mode === 'device';
+      }
+
       function render(timeMs = effectiveTime()) {
+        renderWelcome(timeMs);
         const progress = progressAt(timeMs);
         const point = routePointAt(progress);
         const location = nearestRouteCity(point);
@@ -1924,6 +2041,7 @@
           '25': DEPARTURE_MS + DURATION_MS * .25,
           '50': DEPARTURE_MS + DURATION_MS * .5,
           '75': DEPARTURE_MS + DURATION_MS * .75,
+          welcome: WELCOME_START_MS,
           after: ARRIVAL_MS + 30 * 60 * 1000
         };
         if (name === 'device') {
@@ -2016,13 +2134,21 @@
           render();
         });
 
+        $('welcomeDeviceTime').addEventListener('click', () => usePreset('device'));
+        // Reconcile immediately after a suspended/backgrounded app returns.
+        window.addEventListener('pageshow', () => render());
+        window.addEventListener('focus', () => render());
+        document.addEventListener('visibilitychange', () => {
+          if (!document.hidden) render();
+        });
+
         runSelfTests();
         render();
         setupOfflineApp();
         window.setInterval(() => render(), 1000);
 
         window.__flightTracker = Object.freeze({
-          constants: Object.freeze({ DEPARTURE_MS, ARRIVAL_MS, DURATION_MS, ICN, CDG, ROUTE_DISTANCE_KM, ROUTE_WAYPOINTS, ROUTE_GAPS }),
+          constants: Object.freeze({ DEPARTURE_MS, ARRIVAL_MS, DURATION_MS, WELCOME_START_MS, ICN, CDG, ROUTE_DISTANCE_KM, ROUTE_WAYPOINTS, ROUTE_GAPS }),
           slerp, routePointAt, project, splitAntimeridian, progressAt, nearestRouteCity, render,
           usePreset, setupOfflineApp, zonedParts, formatDuration, runSelfTests,
           getState: () => ({ mode, timeMs: effectiveTime(), progress: progressAt(effectiveTime()) })
@@ -2035,3 +2161,4 @@
   </script>
 </body>
 </html>
+

@@ -52,7 +52,7 @@ function loadTracker(relative, now = DEPARTURE - 3600000) {
     if (attributes['data-preset']) presets.push(node);
   }
   const document = {
-    readyState: 'complete', body: makeNode('body'),
+    ...makeNode('document'), readyState: 'complete', body: makeNode('body'),
     getElementById(id) { assert(nodes.has(id), `script requested missing DOM id ${id}`); return nodes.get(id); },
     querySelectorAll(selector) { assert.equal(selector, '[data-preset]'); return presets; },
     createElementNS(namespace, tag) { assert.equal(namespace, 'http://www.w3.org/2000/svg'); return makeNode(tag); }
@@ -89,6 +89,32 @@ function click(app, preset) { const button = app.presets.find(n => n.dataset.pre
 (async () => {
   const app = loadTracker('tw402/TW402-flight-tracker.html');
   const { api } = app;
+  await check('Welcome exact boundary, after arrival, preview reversal and resume', () => {
+    const start = ARRIVAL - 600000;
+    assert.equal(app.api.constants.WELCOME_START_MS, start);
+    for (const [time, hidden] of [[start - 1, true], [start, false], [start + 1, false], [ARRIVAL, false], [ARRIVAL + 86400000, false]]) {
+      app.api.render(time);
+      assert.equal(node(app, 'welcomeHome').hidden, hidden);
+    }
+    click(app, 'welcome');
+    assert.equal(node(app, 'welcomeHome').hidden, false);
+    assert.equal(node(app, 'welcomePreview').hidden, false);
+    click(app, 'before');
+    assert.equal(node(app, 'welcomeHome').hidden, true);
+    click(app, 'welcome');
+    node(app, 'welcomeDeviceTime').dispatch('click');
+    assert.equal(app.api.getState().mode, 'device');
+    assert.equal(node(app, 'welcomeHome').hidden, true);
+    app.setClock(start);
+    app.window.dispatch('pageshow');
+    assert.equal(node(app, 'welcomeHome').hidden, false);
+    assert.equal(node(app, 'welcomePreview').hidden, true);
+    app.setClock(start - 1);
+    app.document.dispatch('visibilitychange');
+    assert.equal(node(app, 'welcomeHome').hidden, true);
+    app.setClock(DEPARTURE - 3600000);
+    app.api.render();
+  });
   await check('TW402 built-in self-tests: 39/39', () => {
     const result = app.window.__TW402_SELF_TEST__;
     assert.equal(result.total, 39);
@@ -273,3 +299,4 @@ function click(app, preset) { const button = app.presets.find(n => n.dataset.pre
   console.log('Coverage note: no visual rendering, browser storage, or real service-worker lifecycle was simulated by these checks.');
   process.exitCode = failed ? 1 : 0;
 })().catch(error => { console.error(error.stack); process.exitCode = 1; });
+
