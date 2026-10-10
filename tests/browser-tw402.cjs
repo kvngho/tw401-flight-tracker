@@ -161,7 +161,7 @@ async function tests(browser, base, label) {
 async function welcomeChecks(browser, base, label) {
   const context = await browser.newContext({ viewport:{width:390,height:844}, deviceScaleFactor:2, isMobile:true, hasTouch:true, locale:'ko-KR', timezoneId:'America/Los_Angeles', reducedMotion:'reduce' });
   const page = await context.newPage();
-  const start = Date.parse('2026-10-11T06:30:00Z');
+  const start = Date.parse('2026-10-11T06:10:00Z');
   const errors = [];
   capturePageErrors(context, errors);
   try {
@@ -198,7 +198,7 @@ async function welcomeChecks(browser, base, label) {
       await page.reload();
       await page.waitForFunction(() => document.getElementById('offlinePill').dataset.state === 'ready');
       assert.equal(await page.locator('#welcomeHome').isVisible(), true);
-      await page.clock.setFixedTime(start + 600000);
+      await page.clock.setFixedTime(start + 30 * 60 * 1000);
       await page.evaluate(() => window.dispatchEvent(new Event('pageshow')));
       assert.equal(await page.locator('#welcomeHome').isVisible(), true);
       assert.equal(await page.locator('#phaseTitle').innerText(), '예정 도착 시각이 지났어요');
@@ -207,13 +207,13 @@ async function welcomeChecks(browser, base, label) {
     });
     await check(`${label}: all simulation modes hide welcome offline, device mode restores it`, async () => {
       await page.locator('#simulator summary').click();
-      for (const now of [start - 1000, start, start + 600000]) {
+      for (const now of [start - 1000, start, start + 30 * 60 * 1000]) {
         await page.clock.setFixedTime(now);
         for (const preset of ['before', '25', '50', '75', 'after']) {
           await page.locator(`[data-preset="${preset}"]`).click();
           assert.equal(await page.locator('#welcomeHome').isVisible(), false);
         }
-        await page.locator('#timeSlider').evaluate((slider, value) => { slider.value = String(value); slider.dispatchEvent(new Event('input', {bubbles:true})); }, start + 600000);
+        await page.locator('#timeSlider').evaluate((slider, value) => { slider.value = String(value); slider.dispatchEvent(new Event('input', {bubbles:true})); }, start + 30 * 60 * 1000);
         assert.equal(await page.locator('#welcomeHome').isVisible(), false);
         await page.evaluate(() => window.dispatchEvent(new Event('pageshow')));
         assert.equal(await page.locator('#welcomeHome').isVisible(), false);
@@ -247,7 +247,7 @@ async function persistentRestart(base, label) {
       capturePageErrors(context, errors);
       await context.setOffline(true);
       page = context.pages()[0] || await context.newPage();
-      await page.clock.setFixedTime(Date.parse('2026-10-11T06:30:00Z'));
+      await page.clock.setFixedTime(Date.parse('2026-10-11T06:10:00Z'));
       await page.goto(base + 'tw402/TW402-flight-tracker.html?source=pwa');
       await page.waitForFunction(() => window.__TW402_SELF_TEST__?.passed === 39);
       await page.waitForFunction(() => document.getElementById('offlinePill').dataset.state === 'ready', null, {timeout:45000});

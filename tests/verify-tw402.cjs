@@ -90,7 +90,8 @@ function click(app, preset) { const button = app.presets.find(n => n.dataset.pre
   const app = loadTracker('tw402/TW402-flight-tracker.html');
   const { api } = app;
   await check('Welcome uses only device clock, never simulation, and resumes offline', () => {
-    const start = ARRIVAL - 600000;
+    const start = ARRIVAL - 30 * 60 * 1000;
+    assert.equal(start, Date.parse('2026-10-11T15:10:00+09:00'));
     assert.equal(app.api.constants.WELCOME_START_MS, start);
     assert.equal(app.presets.some(button => button.dataset.preset === 'welcome'), false);
     assert.equal(app.nodes.has('welcomePreview'), false);

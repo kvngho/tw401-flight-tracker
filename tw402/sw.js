@@ -2,7 +2,7 @@
 
 // A return-only scope and cache: never remove or serve TW401 outbound files.
 const CACHE_PREFIX = 'tw402-return-flight-';
-const CACHE_NAME = `${CACHE_PREFIX}v3-device-welcome-20261010`;
+const CACHE_NAME = `${CACHE_PREFIX}v4-welcome-30min-20261010`;
 const APP_SHELL = [
   './', './index.html', './TW402-flight-tracker.html', './manifest.webmanifest',
   './apple-touch-icon.png', './icon-192.png', './icon-512.png'
