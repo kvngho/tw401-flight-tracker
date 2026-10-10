@@ -89,30 +89,41 @@ function click(app, preset) { const button = app.presets.find(n => n.dataset.pre
 (async () => {
   const app = loadTracker('tw402/TW402-flight-tracker.html');
   const { api } = app;
-  await check('Welcome exact boundary, after arrival, preview reversal and resume', () => {
+  await check('Welcome uses only device clock, never simulation, and resumes offline', () => {
     const start = ARRIVAL - 600000;
     assert.equal(app.api.constants.WELCOME_START_MS, start);
+    assert.equal(app.presets.some(button => button.dataset.preset === 'welcome'), false);
+    assert.equal(app.nodes.has('welcomePreview'), false);
+    assert.equal(app.nodes.has('welcomeDeviceTime'), false);
     for (const [time, hidden] of [[start - 1, true], [start, false], [start + 1, false], [ARRIVAL, false], [ARRIVAL + 86400000, false]]) {
-      app.api.render(time);
+      app.setClock(time);
+      click(app, 'device');
+      assert.equal(node(app, 'welcomeHome').hidden, hidden);
+      for (const preset of ['before', '25', '50', '75', 'after']) {
+        click(app, preset);
+        assert.equal(node(app, 'welcomeHome').hidden, true, `hidden for ${preset}`);
+      }
+      for (const simulatedTime of [start, ARRIVAL, ARRIVAL + 3600000]) {
+        slider(app, simulatedTime);
+        assert.equal(node(app, 'welcomeHome').hidden, true);
+      }
+      click(app, 'device');
       assert.equal(node(app, 'welcomeHome').hidden, hidden);
     }
-    click(app, 'welcome');
-    assert.equal(node(app, 'welcomeHome').hidden, false);
-    assert.equal(node(app, 'welcomePreview').hidden, false);
-    click(app, 'before');
-    assert.equal(node(app, 'welcomeHome').hidden, true);
-    click(app, 'welcome');
-    node(app, 'welcomeDeviceTime').dispatch('click');
-    assert.equal(app.api.getState().mode, 'device');
-    assert.equal(node(app, 'welcomeHome').hidden, true);
+    app.setClock(start - 1);
+    app.api.render(ARRIVAL);
+    assert.equal(node(app, 'welcomeHome').hidden, true, 'render argument cannot reveal greeting');
     app.setClock(start);
+    app.navigator.onLine = false;
     app.window.dispatch('pageshow');
     assert.equal(node(app, 'welcomeHome').hidden, false);
-    assert.equal(node(app, 'welcomePreview').hidden, true);
-    app.setClock(start - 1);
+    click(app, 'after');
     app.document.dispatch('visibilitychange');
     assert.equal(node(app, 'welcomeHome').hidden, true);
+    click(app, 'device');
+    assert.equal(node(app, 'welcomeHome').hidden, false);
     app.setClock(DEPARTURE - 3600000);
+    app.navigator.onLine = true;
     app.api.render();
   });
   await check('TW402 built-in self-tests: 39/39', () => {

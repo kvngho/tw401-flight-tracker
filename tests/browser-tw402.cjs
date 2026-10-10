@@ -174,7 +174,7 @@ async function welcomeChecks(browser, base, label) {
       await page.evaluate(() => window.__flightTracker.render());
       assert.equal(await page.locator('#welcomeHome').isVisible(), true);
       assert.equal(await page.locator('#welcomeTitle').innerText(), '선영 사랑해\n웰컴홈!');
-      assert.equal(await page.locator('#welcomePreview').isVisible(), false);
+      assert.equal(await page.locator('#welcomePreview, #welcomeDeviceTime, [data-preset=welcome]').count(), 0);
       await page.clock.setFixedTime(start + 1);
       await page.waitForFunction(() => !document.getElementById('welcomeHome').hidden);
       assert.equal(await page.locator('#welcomeHome').isVisible(), true);
@@ -205,17 +205,22 @@ async function welcomeChecks(browser, base, label) {
       await page.reload();
       assert.equal(await page.locator('#welcomeHome').isVisible(), true);
     });
-    await check(`${label}: reversible welcome simulation and return to device time`, async () => {
-      await page.clock.setFixedTime(start - 1000);
+    await check(`${label}: all simulation modes hide welcome offline, device mode restores it`, async () => {
       await page.locator('#simulator summary').click();
-      await page.locator('[data-preset=welcome]').click();
-      assert.equal(await page.locator('#welcomePreview').isVisible(), true);
-      await page.locator('[data-preset=before]').click();
-      assert.equal(await page.locator('#welcomeHome').isVisible(), false);
-      await page.locator('[data-preset=welcome]').click();
-      await page.locator('#welcomeDeviceTime').click();
-      assert.equal(await page.locator('#welcomeHome').isVisible(), false);
-      assert.equal(await page.locator('#mapMode').innerText(), 'DEVICE TIME');
+      for (const now of [start - 1000, start, start + 600000]) {
+        await page.clock.setFixedTime(now);
+        for (const preset of ['before', '25', '50', '75', 'after']) {
+          await page.locator(`[data-preset="${preset}"]`).click();
+          assert.equal(await page.locator('#welcomeHome').isVisible(), false);
+        }
+        await page.locator('#timeSlider').evaluate((slider, value) => { slider.value = String(value); slider.dispatchEvent(new Event('input', {bubbles:true})); }, start + 600000);
+        assert.equal(await page.locator('#welcomeHome').isVisible(), false);
+        await page.evaluate(() => window.dispatchEvent(new Event('pageshow')));
+        assert.equal(await page.locator('#welcomeHome').isVisible(), false);
+        await page.locator('[data-preset=device]').click();
+        assert.equal(await page.locator('#welcomeHome').isVisible(), now >= start);
+        assert.equal(await page.locator('#mapMode').innerText(), 'DEVICE TIME');
+      }
       assert.deepEqual(errors, []);
     });
   } finally { await context.close(); }
@@ -242,15 +247,22 @@ async function persistentRestart(base, label) {
       capturePageErrors(context, errors);
       await context.setOffline(true);
       page = context.pages()[0] || await context.newPage();
+      await page.clock.setFixedTime(Date.parse('2026-10-11T06:30:00Z'));
       await page.goto(base + 'tw402/TW402-flight-tracker.html?source=pwa');
       await page.waitForFunction(() => window.__TW402_SELF_TEST__?.passed === 39);
       await page.waitForFunction(() => document.getElementById('offlinePill').dataset.state === 'ready', null, {timeout:45000});
       assert.equal(await page.locator('#flightTitle').innerText(), 'TW0402');
       await assertOfflineUsable(page);
       assert.equal(await page.evaluate(() => navigator.serviceWorker.controller.scriptURL.includes('/tw402/sw.js')), true);
+      assert.equal(await page.locator('#welcomeHome').isVisible(), true);
       await page.locator('#simulator summary').click();
       await page.locator('[data-preset="50"]').click();
       assert.equal(await page.locator('#progressValue').innerText(), '50.0');
+      assert.equal(await page.locator('#welcomeHome').isVisible(), false);
+      await page.locator('[data-preset=after]').click();
+      assert.equal(await page.locator('#welcomeHome').isVisible(), false);
+      await page.locator('[data-preset=device]').click();
+      assert.equal(await page.locator('#welcomeHome').isVisible(), true);
       await page.screenshot({path:path.join(artifacts, `${label}-restart-offline.png`),fullPage:true});
       assert.deepEqual(errors, []);
     } finally {

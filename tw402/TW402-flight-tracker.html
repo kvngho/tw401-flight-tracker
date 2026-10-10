@@ -222,20 +222,6 @@
     }
     .welcome-route i { width: 54px; height: 1px; background: linear-gradient(90deg, transparent, #dcad97, transparent); }
     .welcome-timing { margin: 0; color: #d5c1c7; font-size: 11px; line-height: 1.7; }
-    .welcome-preview { margin: 12px 0 0; color: #f8cf8f; font-size: 10px; }
-    .welcome-preview[hidden] { display: none; }
-    .welcome-preview button {
-      min-height: 44px;
-      margin: 5px 0 0;
-      padding: 0 15px;
-      border: 1px solid rgba(248, 207, 143, .3);
-      border-radius: 999px;
-      color: #ffe1b1;
-      background: rgba(248, 207, 143, .07);
-      cursor: pointer;
-    }
-    .welcome-preview button:focus-visible { outline: 2px solid var(--cyan); outline-offset: 3px; }
-    .preset[data-preset="welcome"] { grid-column: 1 / -1; color: #f7c4c9; border-color: rgba(247, 196, 201, .25); }
     @media (prefers-reduced-motion: no-preference) {
       .welcome:not([hidden]) { animation: welcome-in .8s ease-out both; }
       .welcome-heart { animation: welcome-heart 3s ease-in-out 2; }
@@ -907,10 +893,6 @@
       <h2 class="welcome-title" id="welcomeTitle"><span>선영 사랑해</span> <span>웰컴홈!</span></h2>
       <div class="welcome-route" aria-hidden="true"><span>PARIS</span><i></i><span>INCHEON</span></div>
       <p class="welcome-timing">10월 11일 15:40 KST 도착 예정 · 일정 기준</p>
-      <div class="welcome-preview" id="welcomePreview" hidden>
-        시뮬레이션 미리보기<br>
-        <button type="button" id="welcomeDeviceTime">기기 시각으로 돌아가기</button>
-      </div>
     </section>
 
     <section class="panel hero" aria-labelledby="flightTitle">
@@ -1063,7 +1045,6 @@
           <button class="preset" type="button" data-preset="50" aria-pressed="false">50%</button>
           <button class="preset" type="button" data-preset="75" aria-pressed="false">75%</button>
           <button class="preset" type="button" data-preset="after" aria-pressed="false">도착 후</button>
-          <button class="preset" type="button" data-preset="welcome" aria-pressed="false">도착 10분 전 · 웰컴홈 미리보기</button>
         </div>
         <div class="slider-wrap">
           <label for="timeSlider" class="instrument-label">직접 이동</label>
@@ -1956,16 +1937,15 @@
         return mode === 'device' ? Date.now() : simulatedMs;
       }
 
-      function renderWelcome(timeMs) {
-        // The same device/simulated clock drives the tracker and this message.
-        // No persisted flag: reloading offline or returning to an earlier preview
-        // always recomputes the correct state. Keep the greeting after arrival.
-        $('welcomeHome').hidden = timeMs < WELCOME_START_MS;
-        $('welcomePreview').hidden = mode === 'device';
+      function renderWelcome() {
+        // Only the real device clock may reveal the greeting. All simulation
+        // modes hide it, even when the actual arrival threshold has passed.
+        // Recompute on every render/resume/reload, including offline.
+        $('welcomeHome').hidden = mode !== 'device' || Date.now() < WELCOME_START_MS;
       }
 
       function render(timeMs = effectiveTime()) {
-        renderWelcome(timeMs);
+        renderWelcome();
         const progress = progressAt(timeMs);
         const point = routePointAt(progress);
         const location = nearestRouteCity(point);
@@ -2041,7 +2021,6 @@
           '25': DEPARTURE_MS + DURATION_MS * .25,
           '50': DEPARTURE_MS + DURATION_MS * .5,
           '75': DEPARTURE_MS + DURATION_MS * .75,
-          welcome: WELCOME_START_MS,
           after: ARRIVAL_MS + 30 * 60 * 1000
         };
         if (name === 'device') {
@@ -2134,7 +2113,6 @@
           render();
         });
 
-        $('welcomeDeviceTime').addEventListener('click', () => usePreset('device'));
         // Reconcile immediately after a suspended/backgrounded app returns.
         window.addEventListener('pageshow', () => render());
         window.addEventListener('focus', () => render());
